@@ -117,11 +117,11 @@ void view_draw(view_data_t *p_view);
 // ----Scene-----------------
 typedef struct scene_data {
   view_data_t *p_main_view;
-  callback_t init;
-  callback_t handle_input;
-  callback_t update;
-  callback_t draw;
-  callback_t shutdown;
+  callback_t c_init;
+  callback_t c_handle_input;
+  callback_t c_update;
+  callback_t c_draw;
+  callback_t c_shutdown;
 } scene_data_t;
 
 scene_data_t *scene_create();
@@ -129,7 +129,7 @@ scene_data_t *scene_create();
 // ----Game------------------
 typedef struct game_data {
   bool should_close;
-  scene_data_t *curr_scene;
+  scene_data_t *p_curr_scene;
 } game_data_t;
 
 extern game_data_t g_game;

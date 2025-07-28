@@ -35,11 +35,11 @@ bool game_is_colliding_with_border(view_data_t *p_view, vec2_t new_pos) {
 
 void game_change_scene(scene_data_t *p_new_scene) {
   // Cleanup
-  g_game.curr_scene->shutdown();
+  g_game.p_curr_scene->c_shutdown();
 
   // Set new scene and init
-  g_game.curr_scene = p_new_scene;
-  p_new_scene->init();
+  g_game.p_curr_scene = p_new_scene;
+  p_new_scene->c_init();
 }
 
 void game_init() {
@@ -49,18 +49,18 @@ void game_init() {
   // Curses Init
   game_curses_setup();
 
-  g_game.curr_scene->init();
+  g_game.p_curr_scene->c_init();
 }
 
 void game_run() {
   while (!g_game.should_close) {
-    g_game.curr_scene->handle_input();
-    g_game.curr_scene->update();
-    g_game.curr_scene->draw();
+    g_game.p_curr_scene->c_handle_input();
+    g_game.p_curr_scene->c_update();
+    g_game.p_curr_scene->c_draw();
   }
 }
 
 void game_shutdown() {
-  g_game.curr_scene->shutdown();
+  g_game.p_curr_scene->c_shutdown();
   endwin();
 }

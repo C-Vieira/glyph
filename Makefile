@@ -8,7 +8,12 @@ LIB_NAME = libglyph.a
 GLYPH_SOURCE := $(wildcard ./glyph/src/*.c)
 GLYPH_OFILES := $(GLYPH_SOURCE:.c=.o)
 
-all: glyph libglyph snake run glyph_fclean snake_clean
+## Build Shorthand
+## Snake
+##all: glyph libglyph snake snake_run snake_clean
+
+## Sokoban
+all: glyph libglyph sokoban sokoban_run sokoban_clean
 
 ## Compile source into obj files
 glyph:
@@ -24,21 +29,35 @@ glyph_clean:
 glyph_fclean: glyph_clean 
 	rm -f $(LIB_NAME)
 
-## Snake Example
-SNAKE_CFLAGS = -std=c99 -Wall -Werror -g ##-fsanitize=address
+## Examples
+## Compiler flags
+CFLAGS = -std=c99 -Wall -Werror -g ##-fsanitize=address
 
 ## Flags for linking libraries to game source
-SNAKE_LDFLAGS = -L. -lglyph -lncurses
+LDFLAGS = -L. -lglyph -lncurses
 
+## Snake Example
 SNAKE_SOURCE = $(wildcard ./examples/snake/src/*.c)
 
 ## Compile game source and link it with library
-snake:
-	$(CC) $(SNAKE_CFLAGS) $(SNAKE_SOURCE) -o snake $(SNAKE_LDFLAGS)
+snake: glyph libglyph
+	$(CC) $(CFLAGS) $(SNAKE_SOURCE) -o snake $(LDFLAGS)
 
-run:
+snake_run:
 	./snake
 
-snake_clean:
+snake_clean: glyph_fclean
 	rm snake
 
+## Sokoban Example
+SOKOBAN_SOURCE = $(wildcard ./examples/sokoban/src/*.c)
+
+## Compile game source and link it with library
+sokoban: glyph libglyph
+	$(CC) $(CFLAGS) $(SOKOBAN_SOURCE) -o sokoban $(LDFLAGS)
+
+sokoban_run:
+	./sokoban
+
+sokoban_clean: glyph_fclean
+	rm sokoban 
