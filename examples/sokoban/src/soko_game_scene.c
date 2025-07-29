@@ -2,12 +2,22 @@
 
 scene_data_t *gp_soko_game_scene;
 
+// Player reference
+entity_t s_player;
+
 // Views
 static view_data_t *p_game_view;
 
 void soko_game_init() {
+  // View Init
   p_game_view = view_create(28, 50, 0, 0);
   view_add_border(p_game_view);
+
+  // Player Init
+  s_player =
+      (entity_t){.pos = {3, 8}, .ch = '@', .color = COLOR_PAIR(GREEN_BLACK)};
+  // Draw it on the screen
+  view_draw_entity_at(p_game_view, &s_player);
 
   view_draw(p_game_view);
 }
@@ -16,11 +26,53 @@ void soko_game_handle_input() {
   chtype input = view_get_input(p_game_view);
   if (input == 'q')
     g_game.should_close = true;
+
+  vec2_t new_dir;
+  switch (input) {
+  case 'w': {
+    new_dir = VEC_UP;
+    break;
+  }
+  case 'a': {
+    new_dir = VEC_LEFT;
+    break;
+  }
+  case 's': {
+    new_dir = VEC_DOWN;
+    break;
+  }
+  case 'd': {
+    new_dir = VEC_RIGHT;
+    break;
+  }
+  default:
+    new_dir = s_player.dir;
+  }
+
+  // Set player direction
+  s_player.dir = new_dir;
 }
 
-void soko_game_update() {}
+void soko_game_update() {
+  vec2_t new_pos = vector_add(s_player.dir, s_player.pos);
 
-void soko_game_draw() { view_draw(p_game_view); }
+  // Check collisions
+  if (!game_is_colliding_with_border(p_game_view, new_pos)) {
+    // Clear trail
+    vec2_t old_pos = s_player.pos;
+    view_clear_char_at(p_game_view, old_pos.y, old_pos.x);
+
+    // Update player position
+    s_player.pos = new_pos;
+  }
+}
+
+void soko_game_draw() {
+  // Draw player
+  view_draw_entity_at(p_game_view, &s_player);
+
+  view_draw(p_game_view);
+}
 
 void soko_game_shutdown() {
   delwin(p_game_view->p_view_window);
