@@ -4,6 +4,26 @@
 // ----Includes--------------
 #include "../../glyph/glyph.h"
 
+// (Experimental)
+// ----Tile------------------
+typedef struct tile {
+  chtype ch;
+  bool walkable;
+} tile_t;
+
+// (Experimental)
+// ----Map-------------------
+extern int MAP_HEIGHT;
+extern int MAP_WIDTH;
+
+extern tile_t **gp_map;
+
+tile_t **map_create(view_data_t *p_view);
+// Test
+void map_test_init();
+void map_draw(view_data_t *p_view, tile_t **p_map);
+void map_free();
+
 // ----Sokoban---------------
 // ----Game-Scene------------
 extern scene_data_t *gp_soko_game_scene;
