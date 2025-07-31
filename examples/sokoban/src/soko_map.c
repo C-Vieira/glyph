@@ -1,8 +1,21 @@
 #include "../soko.h"
-#include <curses.h>
 
 int MAP_HEIGHT;
 int MAP_WIDTH;
+
+// Tile templates
+tile_t tile_empty =
+    (tile_t){.ch = ' ', .blocks_movement = false, .movable = false};
+
+tile_t tile_wall = (tile_t){.ch = '#',
+                            .color = COLOR_PAIR(WHITE_BLACK),
+                            .blocks_movement = true,
+                            .movable = false};
+
+tile_t tile_rock = (tile_t){.ch = 'O',
+                            .color = COLOR_PAIR(YELLOW_BLACK),
+                            .blocks_movement = false,
+                            .movable = true};
 
 tile_t **map_create(view_data_t *p_view) {
   // Set map height
@@ -22,27 +35,58 @@ tile_t **map_create(view_data_t *p_view) {
     // Init tiles
     for (int x = 0; x < MAP_WIDTH; x++) {
       tiles[y][x].ch = ' ';
-      tiles[y][x].walkable = true;
+      tiles[y][x].blocks_movement = false;
+      tiles[y][x].movable = false;
     }
   }
 
   return tiles;
 }
 
+// Test level
 void map_test_init() {
-  tile_t wall_template = {.ch = '#', .walkable = false};
+  /* Test level layout
+      "##   ##"  7 x 7 + border = 9 x 9
+      "#OO OO#"
+      "# OOO #"
+      "#O   O#"
+      "# OOO #"
+      "#     #"
+      "#  @  #"  */
 
-  for (int x = 0; x < MAP_WIDTH; x++) {
-    if (x > (MAP_WIDTH / 2) - 4 && x < (MAP_WIDTH / 2) + 4)
-      continue;
-    gp_map[MAP_HEIGHT / 2][x] = wall_template;
+  int level[9][9]
+  = {  [0] = {1,1,1,1,1,1,1,1,1},
+       [1] = {1,1,1,0,0,0,1,1,1},
+       [2] = {1,1,2,2,0,2,2,1,1},
+       [3] = {1,1,0,2,2,2,0,1,1},
+       [4] = {1,1,2,0,0,0,2,1,1},
+       [5] = {1,1,0,2,2,2,0,1,1},
+       [6] = {1,1,0,0,0,0,0,1,1},
+       [7] = {1,1,0,0,0,0,0,1,1},
+       [8] = {1,1,1,1,1,1,1,1,1}};
+
+  for (int y = 0; y < MAP_HEIGHT; y++) {
+    for (int x = 0; x < MAP_WIDTH; x++) {
+      switch (level[y][x]) {
+        case 1: gp_map[y][x] = tile_wall; break;
+        case 2: gp_map[y][x] = tile_rock; break;
+        case 0: gp_map[y][x] = tile_empty; break;
+      }
+    }
   }
+
+  /*for (int x = 0; x < MAP_WIDTH; x++) {
+    if (x > (MAP_WIDTH / 2) - 4 && x < (MAP_WIDTH / 2) + 4)
+      gp_map[MAP_HEIGHT / 2][x] = tile_rock;
+    else
+      gp_map[MAP_HEIGHT / 2][x] = tile_wall;
+  }*/
 }
 
 void map_draw(view_data_t *p_view, tile_t **p_map) {
   for (int y = 0; y < MAP_HEIGHT; y++) {
     for (int x = 0; x < MAP_WIDTH; x++) {
-      view_draw_char_at(p_view, y, x, p_map[y][x].ch, COLOR_PAIR(WHITE_BLACK));
+      view_draw_char_at(p_view, y, x, p_map[y][x].ch, p_map[y][x].color);
     }
   }
 }

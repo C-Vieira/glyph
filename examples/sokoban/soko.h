@@ -8,8 +8,15 @@
 // ----Tile------------------
 typedef struct tile {
   chtype ch;
-  bool walkable;
+  int color;
+  bool blocks_movement;
+  bool movable;
 } tile_t;
+
+// Tile Templates
+extern tile_t tile_empty;
+extern tile_t tile_wall;
+extern tile_t tile_rock;
 
 // (Experimental)
 // ----Map-------------------
