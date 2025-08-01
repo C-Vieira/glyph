@@ -13,14 +13,15 @@ tile_t **gp_map;
 
 void soko_game_init() {
   // View Init
-  // p_game_view = view_create(28, 50, 0, 0);
-  p_game_view = view_create(9, 9, 0, 0);
+  p_game_view = view_create(28, 50, 0, 0);
+  // p_game_view = view_create(9, 9, 0, 0);
   view_add_border(p_game_view);
 
   // Map Init
   gp_map = map_create(p_game_view);
   // Load test level
-  map_test_init();
+  // test_level_init();
+  test_map_init();
   // Draw map
   map_draw(p_game_view, gp_map);
 
@@ -82,6 +83,21 @@ bool should_move(vec2_t new_pos) {
     vec2_t tile_new_pos = vector_add(new_pos, s_player.dir);
     tile_t next_tile = gp_map[tile_new_pos.y][tile_new_pos.x];
 
+    // TESTING
+    // if it's a hole
+    if (next_tile.ch == 'X') {
+      // Plug the hole
+      gp_map[tile_new_pos.y][tile_new_pos.x].ch = '.';
+      gp_map[tile_new_pos.y][tile_new_pos.x].blocks_movement = false;
+      view_draw_char_at(p_game_view, tile_new_pos.y, tile_new_pos.x,
+                        gp_map[tile_new_pos.y][tile_new_pos.x].ch,
+                        gp_map[tile_new_pos.y][tile_new_pos.x].color);
+
+      // Delete the rock
+      gp_map[new_pos.y][new_pos.x] = tile_empty;
+      return true;
+    }
+
     // Tile is colliding with border / wall or other movable tile
     if (game_is_colliding_with_border(p_game_view, tile_new_pos) ||
         next_tile.blocks_movement || next_tile.movable)
@@ -107,7 +123,10 @@ void soko_game_update() {
   if (should_move(new_pos)) {
     // Clear trail
     vec2_t old_pos = s_player.pos;
-    view_clear_char_at(p_game_view, old_pos.y, old_pos.x);
+    // view_clear_char_at(p_game_view, old_pos.y, old_pos.x);
+    view_draw_char_at(p_game_view, old_pos.y, old_pos.x,
+                      gp_map[old_pos.y][old_pos.x].ch,
+                      gp_map[old_pos.y][old_pos.x].color);
 
     // Update player position
     s_player.pos = new_pos;

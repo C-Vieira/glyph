@@ -17,6 +17,11 @@ tile_t tile_rock = (tile_t){.ch = 'O',
                             .blocks_movement = false,
                             .movable = true};
 
+tile_t tile_hole = (tile_t){.ch = 'X',
+                            .color = COLOR_PAIR(RED_BLACK),
+                            .blocks_movement = true,
+                            .movable = false};
+
 tile_t **map_create(view_data_t *p_view) {
   // Set map height
   MAP_HEIGHT = p_view->height;
@@ -44,7 +49,7 @@ tile_t **map_create(view_data_t *p_view) {
 }
 
 // Test level
-void map_test_init() {
+void test_level_init() {
   /* Test level layout
       "##   ##"  7 x 7 + border = 9 x 9
       "#OO OO#"
@@ -54,33 +59,39 @@ void map_test_init() {
       "#     #"
       "#  @  #"  */
 
-  int level[9][9]
-  = {  [0] = {1,1,1,1,1,1,1,1,1},
-       [1] = {1,1,0,0,0,0,0,1,1},
-       [2] = {1,1,1,0,0,0,1,1,1},
-       [3] = {1,1,2,2,0,2,2,1,1},
-       [4] = {1,1,0,2,2,2,0,1,1},
-       [5] = {1,1,2,0,0,0,2,1,1},
-       [6] = {1,1,0,2,2,2,0,1,1},
-       [7] = {1,1,0,0,0,0,0,1,1},
-       [8] = {1,1,1,1,1,1,1,1,1}};
+  int level[9][9] = {
+      [0] = {1, 1, 1, 1, 1, 1, 1, 1, 1}, [1] = {1, 1, 0, 0, 0, 0, 0, 1, 1},
+      [2] = {1, 1, 1, 0, 0, 0, 1, 1, 1}, [3] = {1, 1, 2, 2, 0, 2, 2, 1, 1},
+      [4] = {1, 1, 0, 2, 2, 2, 0, 1, 1}, [5] = {1, 1, 2, 0, 0, 0, 2, 1, 1},
+      [6] = {1, 1, 0, 2, 2, 2, 0, 1, 1}, [7] = {1, 1, 0, 0, 0, 0, 0, 1, 1},
+      [8] = {1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
   for (int y = 0; y < MAP_HEIGHT; y++) {
     for (int x = 0; x < MAP_WIDTH; x++) {
       switch (level[y][x]) {
-        case 1: gp_map[y][x] = tile_wall; break;
-        case 2: gp_map[y][x] = tile_rock; break;
-        case 0: gp_map[y][x] = tile_empty; break;
+      case 1:
+        gp_map[y][x] = tile_wall;
+        break;
+      case 2:
+        gp_map[y][x] = tile_rock;
+        break;
+      case 0:
+        gp_map[y][x] = tile_empty;
+        break;
       }
     }
   }
+}
 
-  /*for (int x = 0; x < MAP_WIDTH; x++) {
+void test_map_init() {
+  for (int x = 0; x < MAP_WIDTH; x++) {
     if (x > (MAP_WIDTH / 2) - 4 && x < (MAP_WIDTH / 2) + 4)
       gp_map[MAP_HEIGHT / 2][x] = tile_rock;
     else
       gp_map[MAP_HEIGHT / 2][x] = tile_wall;
-  }*/
+  }
+
+  gp_map[(MAP_HEIGHT / 2) + 5][MAP_WIDTH / 2] = tile_hole;
 }
 
 void map_draw(view_data_t *p_view, tile_t **p_map) {

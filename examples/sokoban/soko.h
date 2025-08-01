@@ -17,6 +17,7 @@ typedef struct tile {
 extern tile_t tile_empty;
 extern tile_t tile_wall;
 extern tile_t tile_rock;
+extern tile_t tile_hole;
 
 // (Experimental)
 // ----Map-------------------
@@ -27,7 +28,8 @@ extern tile_t **gp_map;
 
 tile_t **map_create(view_data_t *p_view);
 // Test
-void map_test_init();
+void test_level_init();
+void test_map_init();
 void map_draw(view_data_t *p_view, tile_t **p_map);
 void map_free();
 
