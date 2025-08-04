@@ -3,7 +3,7 @@
 // Global game reference
 game_data_t g_game;
 
-static void game_curses_setup() {
+internal void game_curses_setup() {
   initscr();
   noecho();
   curs_set(0);
@@ -24,13 +24,6 @@ static void game_curses_setup() {
     mvprintw(20, 50, "Your system doesn't support color. Can't start game!");
     getch();
   }
-}
-
-bool game_is_colliding_with_border(view_data_t *p_view, vec2_t new_pos) {
-  if (new_pos.y <= 0 || new_pos.y >= p_view->height - 1 || new_pos.x <= 0 ||
-      new_pos.x == p_view->width - 1)
-    return true;
-  return false;
 }
 
 void game_change_scene(scene_data_t *p_new_scene) {

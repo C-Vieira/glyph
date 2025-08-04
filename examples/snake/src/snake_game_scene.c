@@ -18,7 +18,7 @@ snake_player_t g_player;
 static entity_t s_fruit;
 
 // Helper Functions
-static void snake_game_pause() {
+internal void snake_game_pause() {
   // Paused State
   view_draw(sp_pause_screen);
   view_draw_message_at(sp_pause_screen, 2, 6, "PAUSED");
@@ -28,7 +28,7 @@ static void snake_game_pause() {
   view_clear(sp_pause_screen);
 }
 
-static void snake_game_over() {
+internal void snake_game_over() {
   // Game Over State
   view_draw(sp_game_over_screen);
   view_draw_message_at(sp_game_over_screen, 2, 1, "   GAME OVER!   ");
@@ -39,7 +39,7 @@ static void snake_game_over() {
   view_clear(sp_game_over_screen);
 }
 
-static void snake_game_start() {
+internal void snake_game_start() {
   // Clear main view
   view_clear(sp_game_board);
 
@@ -151,8 +151,8 @@ void snake_game_update() {
   new_pos = vector_add(g_player.player.dir, head->pos);
 
   // Handle Collisions
-  if (game_is_colliding_with_border(sp_game_board, new_pos) ||
-      view_get_char_at(sp_game_board, new_pos.y, new_pos.x) ==
+  if (view_at_border(sp_game_board, new_pos) ||
+      view_get_char_at(sp_game_board, new_pos) ==
           (snake_get_head(&g_player)->ch | snake_get_head(&g_player)->color)) {
 
     snake_game_over();
@@ -170,7 +170,7 @@ void snake_game_update() {
     // Move
     //  Clear trail
     entity_t *tail = snake_get_tail(&g_player);
-    view_clear_char_at(sp_game_board, tail->pos.y, tail->pos.x);
+    view_clear_char_at(sp_game_board, tail->pos);
 
     snake_move_to(&g_player, new_pos);
   }

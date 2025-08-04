@@ -10,6 +10,9 @@
 #include <time.h>
 
 // ----Defines---------------
+// Static
+#define internal static
+
 // Color pairs
 #define WHITE_BLACK 1
 #define BLUE_BLACK 2
@@ -25,7 +28,7 @@
 typedef void (*callback_t)();
 
 // ----Vector----------------
-typedef struct vec2 {
+typedef struct {
   int y;
   int x;
 } vec2_t;
@@ -47,23 +50,23 @@ size_t get_element_size(data_type_t type);
 void *mem_allocate(size_t num_elements, size_t element_size);
 
 // ----Entity----------------
-typedef struct entity {
+typedef struct {
   vec2_t pos;
   vec2_t dir;
   chtype ch;
   int color;
 } entity_t;
 
-typedef struct node {
+typedef struct node_t {
   entity_t *p_data;
-  struct node *p_next;
+  struct node_t *p_next;
 } node_t; // Entity Node
 
 void entity_move_to(entity_t *p_entity, vec2_t new_pos);
 
 // ----Data-Structures-------
 // ----Dynamic-Array---------
-typedef struct dyn_array {
+typedef struct {
   data_type_t type;
   size_t capacity;
   size_t occupied;
@@ -75,7 +78,7 @@ void array_push(dyn_array_t *p_array, size_t index, void *p_value);
 void array_free(dyn_array_t *p_array);
 
 // ----Queue-----------------
-typedef struct queue {
+typedef struct {
   data_type_t type;
   node_t *p_front;
   node_t *p_rear;
@@ -89,7 +92,7 @@ void queue_pop(queue_t *p_queue);
 void queue_free(queue_t *p_queue);
 
 // ----View------------------
-typedef struct view_data {
+typedef struct {
   int height;
   int width;
   int starty;
@@ -102,20 +105,21 @@ void view_set_timeout(view_data_t *p_view, int timeout);
 void view_color_begin(view_data_t *p_view, int color);
 void view_color_end(view_data_t *p_view);
 void view_add_border(view_data_t *p_view);
+bool view_at_border(view_data_t *p_view, vec2_t new_pos);
 void view_clear(view_data_t *p_view);
 void view_refresh(view_data_t *p_view);
 chtype view_get_input(view_data_t *p_view);
 void view_get_empty_coords(view_data_t *p_view, int *p_y, int *p_x);
 void view_draw_num_at(view_data_t *p_view, int y, int x, int num);
-chtype view_get_char_at(view_data_t *p_view, int y, int x);
-void view_draw_char_at(view_data_t *p_view, int y, int x, chtype ch, int color);
-void view_clear_char_at(view_data_t *p_view, int y, int x);
+chtype view_get_char_at(view_data_t *p_view, vec2_t pos);
+void view_draw_char_at(view_data_t *p_view, vec2_t pos, chtype ch, int color);
+void view_clear_char_at(view_data_t *p_view, vec2_t pos);
 void view_draw_message_at(view_data_t *p_view, int y, int x, char *p_msg);
 void view_draw_entity_at(view_data_t *p_view, entity_t *p_entity);
 void view_draw(view_data_t *p_view);
 
 // ----Scene-----------------
-typedef struct scene_data {
+typedef struct {
   view_data_t *p_main_view;
   callback_t c_init;
   callback_t c_handle_input;
@@ -127,14 +131,13 @@ typedef struct scene_data {
 scene_data_t *scene_create();
 
 // ----Game------------------
-typedef struct game_data {
+typedef struct {
   bool should_close;
   scene_data_t *p_curr_scene;
 } game_data_t;
 
 extern game_data_t g_game;
 
-bool game_is_colliding_with_border(view_data_t *p_view, vec2_t new_pos);
 void game_change_scene(scene_data_t *p_new_scene);
 void game_init(void);
 void game_run(void);

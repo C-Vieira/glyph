@@ -1,6 +1,6 @@
 #include "../snake.h"
 
-static void snake_register_scenes() {
+internal void snake_register_scenes() {
   // Scenes Init
   // Title
   gp_snake_title_scene = scene_create();

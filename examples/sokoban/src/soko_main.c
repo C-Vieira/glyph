@@ -1,6 +1,6 @@
 #include "../soko.h"
 
-static void soko_register_scenes() {
+internal void soko_register_scenes() {
   // Scenes Init
   // Game
   gp_soko_game_scene = scene_create();

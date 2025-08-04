@@ -40,6 +40,13 @@ void view_color_end(view_data_t *p_view) {
 
 void view_add_border(view_data_t *p_view) { box(p_view->p_view_window, 0, 0); }
 
+bool view_at_border(view_data_t *p_view, vec2_t new_pos) {
+  if (new_pos.y <= 0 || new_pos.y >= p_view->height - 1 || new_pos.x <= 0 ||
+      new_pos.x == p_view->width - 1)
+    return true;
+  return false;
+}
+
 void view_clear(view_data_t *p_view) {
   wclear(p_view->p_view_window);
   wrefresh(p_view->p_view_window);
@@ -71,17 +78,16 @@ void view_draw_num_at(view_data_t *p_view, int y, int x, int num) {
   mvwprintw(p_view->p_view_window, y, x, "%d", num);
 }
 
-chtype view_get_char_at(view_data_t *p_view, int y, int x) {
-  return mvwinch(p_view->p_view_window, y, x);
+chtype view_get_char_at(view_data_t *p_view, vec2_t pos) {
+  return mvwinch(p_view->p_view_window, pos.y, pos.x);
 }
 
-void view_draw_char_at(view_data_t *p_view, int y, int x, chtype ch,
-                       int color) {
-  mvwaddch(p_view->p_view_window, y, x, ch | color);
+void view_draw_char_at(view_data_t *p_view, vec2_t pos, chtype ch, int color) {
+  mvwaddch(p_view->p_view_window, pos.y, pos.x, ch | color);
 }
 
-void view_clear_char_at(view_data_t *p_view, int y, int x) {
-  mvwaddch(p_view->p_view_window, y, x, ' ');
+void view_clear_char_at(view_data_t *p_view, vec2_t pos) {
+  mvwaddch(p_view->p_view_window, pos.y, pos.x, ' ');
 }
 
 void view_draw_message_at(view_data_t *p_view, int y, int x, char *p_msg) {
@@ -89,8 +95,7 @@ void view_draw_message_at(view_data_t *p_view, int y, int x, char *p_msg) {
 }
 
 void view_draw_entity_at(view_data_t *p_view, entity_t *p_entity) {
-  view_draw_char_at(p_view, p_entity->pos.y, p_entity->pos.x, p_entity->ch,
-                    p_entity->color);
+  view_draw_char_at(p_view, p_entity->pos, p_entity->ch, p_entity->color);
 }
 
 void view_draw(view_data_t *p_view) {

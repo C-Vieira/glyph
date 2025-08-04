@@ -68,7 +68,7 @@ void soko_game_handle_input() {
 // Test
 bool should_move(vec2_t new_pos) {
   // At border
-  if (game_is_colliding_with_border(p_game_view, new_pos))
+  if (view_at_border(p_game_view, new_pos))
     return false;
   // Blocking tile
   if (gp_map[new_pos.y][new_pos.x].blocks_movement)
@@ -89,7 +89,7 @@ bool should_move(vec2_t new_pos) {
       // Plug the hole
       gp_map[tile_new_pos.y][tile_new_pos.x].ch = '.';
       gp_map[tile_new_pos.y][tile_new_pos.x].blocks_movement = false;
-      view_draw_char_at(p_game_view, tile_new_pos.y, tile_new_pos.x,
+      view_draw_char_at(p_game_view, tile_new_pos,
                         gp_map[tile_new_pos.y][tile_new_pos.x].ch,
                         gp_map[tile_new_pos.y][tile_new_pos.x].color);
 
@@ -99,7 +99,7 @@ bool should_move(vec2_t new_pos) {
     }
 
     // Tile is colliding with border / wall or other movable tile
-    if (game_is_colliding_with_border(p_game_view, tile_new_pos) ||
+    if (view_at_border(p_game_view, tile_new_pos) ||
         next_tile.blocks_movement || next_tile.movable)
       return false;
 
@@ -107,7 +107,7 @@ bool should_move(vec2_t new_pos) {
     gp_map[new_pos.y][new_pos.x] = tile_empty;
     gp_map[tile_new_pos.y][tile_new_pos.x] = tile_rock;
 
-    view_draw_char_at(p_game_view, tile_new_pos.y, tile_new_pos.x,
+    view_draw_char_at(p_game_view, tile_new_pos,
                       gp_map[tile_new_pos.y][tile_new_pos.x].ch,
                       gp_map[tile_new_pos.y][tile_new_pos.x].color);
   }
@@ -124,8 +124,7 @@ void soko_game_update() {
     // Clear trail
     vec2_t old_pos = s_player.pos;
     // view_clear_char_at(p_game_view, old_pos.y, old_pos.x);
-    view_draw_char_at(p_game_view, old_pos.y, old_pos.x,
-                      gp_map[old_pos.y][old_pos.x].ch,
+    view_draw_char_at(p_game_view, old_pos, gp_map[old_pos.y][old_pos.x].ch,
                       gp_map[old_pos.y][old_pos.x].color);
 
     // Update player position

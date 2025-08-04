@@ -5,7 +5,7 @@ scene_data_t *gp_snake_title_scene;
 // Static global title view
 static view_data_t *sp_title_screen;
 
-static void snake_title_show() {
+internal void snake_title_show() {
 
   int middley = LINES / 2;
   int middlex = (COLS - 46) / 2;

@@ -97,7 +97,8 @@ void test_map_init() {
 void map_draw(view_data_t *p_view, tile_t **p_map) {
   for (int y = 0; y < MAP_HEIGHT; y++) {
     for (int x = 0; x < MAP_WIDTH; x++) {
-      view_draw_char_at(p_view, y, x, p_map[y][x].ch, p_map[y][x].color);
+      view_draw_char_at(p_view, (vec2_t){y, x}, p_map[y][x].ch,
+                        p_map[y][x].color);
     }
   }
 }

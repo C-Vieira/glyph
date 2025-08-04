@@ -6,7 +6,7 @@
 
 // (Experimental)
 // ----Tile------------------
-typedef struct tile {
+typedef struct {
   chtype ch;
   int color;
   bool blocks_movement;
