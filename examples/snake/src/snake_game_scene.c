@@ -62,7 +62,7 @@ internal void snake_game_start() {
   g_player =
       (snake_player_t){.player = player, .p_segments = queue_create(T_ENTITY)};
   snake_add_segment(&g_player, (vec2_t){2, 2});
-  view_draw_entity_at(sp_game_board, snake_get_head(&g_player));
+  view_draw_entity(sp_game_board, snake_get_head(&g_player));
 
   // Create initial segments
   for (int i = 0; i < 4; i++) {
@@ -71,7 +71,7 @@ internal void snake_game_start() {
     vec2_t next_pos = vector_add(snake_get_head(&g_player)->pos, player.dir);
 
     snake_add_segment(&g_player, next_pos);
-    view_draw_entity_at(sp_game_board, snake_get_head(&g_player));
+    view_draw_entity(sp_game_board, snake_get_head(&g_player));
   }
 
   // Fruit Init
@@ -81,7 +81,7 @@ internal void snake_game_start() {
   // Place at a random spot on the board
   view_get_empty_coords(sp_game_board, &s_fruit.pos.y, &s_fruit.pos.x);
   // Draw it on the screen
-  view_draw_entity_at(sp_game_board, &s_fruit);
+  view_draw_entity(sp_game_board, &s_fruit);
 
   // Draw view and refresh
   view_draw(sp_game_board);
@@ -178,10 +178,10 @@ void snake_game_update() {
 
 void snake_game_draw() {
   // Draw fruit
-  view_draw_entity_at(sp_game_board, &s_fruit);
+  view_draw_entity(sp_game_board, &s_fruit);
 
   // Draw player
-  view_draw_entity_at(sp_game_board, snake_get_head(&g_player));
+  view_draw_entity(sp_game_board, snake_get_head(&g_player));
 
   view_draw_num_at(sp_score_board, 1, 8, s_score);
   view_refresh(sp_score_board);

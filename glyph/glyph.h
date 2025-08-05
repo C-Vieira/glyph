@@ -91,6 +91,23 @@ void queue_push(queue_t *p_queue, entity_t *p_entity);
 void queue_pop(queue_t *p_queue);
 void queue_free(queue_t *p_queue);
 
+// (Experimental)
+// ----Tile------------------
+typedef struct {
+  chtype ch;
+  int color;
+  bool blocks_movement;
+  bool movable;
+} tile_t;
+
+// (Experimental)
+// ----Map-------------------
+typedef struct {
+  int MAP_HEIGHT;
+  int MAP_WIDTH;
+  tile_t **p_tiles;
+} tile_map_t;
+
 // ----View------------------
 typedef struct {
   int height;
@@ -115,8 +132,17 @@ chtype view_get_char_at(view_data_t *p_view, vec2_t pos);
 void view_draw_char_at(view_data_t *p_view, vec2_t pos, chtype ch, int color);
 void view_clear_char_at(view_data_t *p_view, vec2_t pos);
 void view_draw_message_at(view_data_t *p_view, int y, int x, char *p_msg);
-void view_draw_entity_at(view_data_t *p_view, entity_t *p_entity);
+void view_draw_entity(view_data_t *p_view, entity_t *p_entity);
+void view_draw_tile_at(view_data_t *p_view, tile_map_t map, vec2_t pos);
 void view_draw(view_data_t *p_view);
+
+// TODO: Solve this ordering problem
+// Tilemap functions
+tile_map_t map_create(view_data_t *p_view);
+tile_t map_get_tile_at(tile_map_t map, vec2_t pos);
+void map_set_tile_at(tile_map_t map, tile_t tile, vec2_t pos);
+void map_draw(view_data_t *p_view, tile_map_t map);
+void map_free(tile_map_t map);
 
 // ----Scene-----------------
 typedef struct {

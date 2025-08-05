@@ -9,7 +9,7 @@ static entity_t s_player;
 static view_data_t *p_game_view;
 
 // Map
-tile_t **gp_map;
+tile_map_t g_map;
 
 void soko_game_init() {
   // View Init
@@ -18,18 +18,18 @@ void soko_game_init() {
   view_add_border(p_game_view);
 
   // Map Init
-  gp_map = map_create(p_game_view);
+  g_map = map_create(p_game_view);
   // Load test level
   // test_level_init();
-  test_map_init();
+  test_map_init(g_map);
   // Draw map
-  map_draw(p_game_view, gp_map);
+  map_draw(p_game_view, g_map);
 
   // Player Init
   s_player =
       (entity_t){.pos = {7, 4}, .ch = '@', .color = COLOR_PAIR(GREEN_BLACK)};
   // Draw it on the screen
-  view_draw_entity_at(p_game_view, &s_player);
+  view_draw_entity(p_game_view, &s_player);
 
   view_draw(p_game_view);
 }
@@ -70,31 +70,31 @@ bool should_move(vec2_t new_pos) {
   // At border
   if (view_at_border(p_game_view, new_pos))
     return false;
-  // Blocking tile
-  if (gp_map[new_pos.y][new_pos.x].blocks_movement)
-    return false;
 
   // Get tile at new pos
-  tile_t tile = gp_map[new_pos.y][new_pos.x];
+  tile_t tile = map_get_tile_at(g_map, new_pos);
+
+  // Blocking tile
+  if (tile.blocks_movement)
+    return false;
 
   // If it's a movable tile
   if (tile.movable) {
     // Get tile one cell beyond
     vec2_t tile_new_pos = vector_add(new_pos, s_player.dir);
-    tile_t next_tile = gp_map[tile_new_pos.y][tile_new_pos.x];
+    tile_t next_tile = map_get_tile_at(g_map, tile_new_pos);
 
     // TESTING
     // if it's a hole
     if (next_tile.ch == 'X') {
       // Plug the hole
-      gp_map[tile_new_pos.y][tile_new_pos.x].ch = '.';
-      gp_map[tile_new_pos.y][tile_new_pos.x].blocks_movement = false;
-      view_draw_char_at(p_game_view, tile_new_pos,
-                        gp_map[tile_new_pos.y][tile_new_pos.x].ch,
-                        gp_map[tile_new_pos.y][tile_new_pos.x].color);
+      g_map.p_tiles[tile_new_pos.y][tile_new_pos.x].ch = '.';
+      g_map.p_tiles[tile_new_pos.y][tile_new_pos.x].blocks_movement = false;
+      // Update visuals
+      view_draw_tile_at(p_game_view, g_map, tile_new_pos);
 
       // Delete the rock
-      gp_map[new_pos.y][new_pos.x] = tile_empty;
+      map_set_tile_at(g_map, tile_empty, new_pos);
       return true;
     }
 
@@ -104,12 +104,10 @@ bool should_move(vec2_t new_pos) {
       return false;
 
     // Update movable tile pos
-    gp_map[new_pos.y][new_pos.x] = tile_empty;
-    gp_map[tile_new_pos.y][tile_new_pos.x] = tile_rock;
+    map_set_tile_at(g_map, tile_empty, new_pos);
+    map_set_tile_at(g_map, tile_rock, tile_new_pos);
 
-    view_draw_char_at(p_game_view, tile_new_pos,
-                      gp_map[tile_new_pos.y][tile_new_pos.x].ch,
-                      gp_map[tile_new_pos.y][tile_new_pos.x].color);
+    view_draw_tile_at(p_game_view, g_map, tile_new_pos);
   }
 
   // Move player
@@ -123,9 +121,7 @@ void soko_game_update() {
   if (should_move(new_pos)) {
     // Clear trail
     vec2_t old_pos = s_player.pos;
-    // view_clear_char_at(p_game_view, old_pos.y, old_pos.x);
-    view_draw_char_at(p_game_view, old_pos, gp_map[old_pos.y][old_pos.x].ch,
-                      gp_map[old_pos.y][old_pos.x].color);
+    view_draw_tile_at(p_game_view, g_map, old_pos);
 
     // Update player position
     s_player.pos = new_pos;
@@ -134,14 +130,14 @@ void soko_game_update() {
 
 void soko_game_draw() {
   // Draw player
-  view_draw_entity_at(p_game_view, &s_player);
+  view_draw_entity(p_game_view, &s_player);
 
   view_draw(p_game_view);
 }
 
 void soko_game_shutdown() {
   // Free map
-  map_free();
+  map_free(g_map);
 
   delwin(p_game_view->p_view_window);
 

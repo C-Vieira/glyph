@@ -94,8 +94,13 @@ void view_draw_message_at(view_data_t *p_view, int y, int x, char *p_msg) {
   mvwprintw(p_view->p_view_window, y, x, "%s", p_msg);
 }
 
-void view_draw_entity_at(view_data_t *p_view, entity_t *p_entity) {
+void view_draw_entity(view_data_t *p_view, entity_t *p_entity) {
   view_draw_char_at(p_view, p_entity->pos, p_entity->ch, p_entity->color);
+}
+
+void view_draw_tile_at(view_data_t *p_view, tile_map_t map, vec2_t pos) {
+  view_draw_char_at(p_view, pos, map.p_tiles[pos.y][pos.x].ch,
+                    map.p_tiles[pos.y][pos.x].color);
 }
 
 void view_draw(view_data_t *p_view) {
