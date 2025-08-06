@@ -1,23 +1,39 @@
 #include "../soko.h"
 
 // Tile templates
-tile_t tile_empty =
-    (tile_t){.ch = ' ', .blocks_movement = false, .movable = false};
+tile_t tile_empty = (tile_t){.id = TILE_EMPTY,
+                             .ch = ' ',
+                             .occupied = false,
+                             .blocks_movement = false,
+                             .movable = false};
 
-tile_t tile_wall = (tile_t){.ch = '#',
+tile_t tile_wall = (tile_t){.id = TILE_WALL,
+                            .ch = '#',
                             .color = COLOR_PAIR(WHITE_BLACK),
+                            .occupied = true,
                             .blocks_movement = true,
                             .movable = false};
 
-tile_t tile_rock = (tile_t){.ch = 'O',
+tile_t tile_rock = (tile_t){.id = TILE_ROCK,
+                            .ch = 'O',
                             .color = COLOR_PAIR(YELLOW_BLACK),
+                            .occupied = true,
                             .blocks_movement = false,
                             .movable = true};
 
-tile_t tile_hole = (tile_t){.ch = 'X',
+tile_t tile_hole = (tile_t){.id = TILE_HOLE,
+                            .ch = 'X',
                             .color = COLOR_PAIR(RED_BLACK),
+                            .occupied = true,
                             .blocks_movement = true,
                             .movable = false};
+
+tile_t tile_filled_hole = (tile_t){.id = TILE_FILLED_HOLE,
+                                   .ch = '.',
+                                   .color = COLOR_PAIR(RED_BLACK),
+                                   .occupied = true,
+                                   .blocks_movement = false,
+                                   .movable = false};
 
 // Test level
 void test_level_init(tile_map_t map) {
@@ -54,13 +70,28 @@ void test_level_init(tile_map_t map) {
   }
 }
 
-void test_map_init(tile_map_t map) {
-  for (int x = 0; x < map.MAP_WIDTH; x++) {
-    if (x > (map.MAP_WIDTH / 2) - 4 && x < (map.MAP_WIDTH / 2) + 4)
-      map.p_tiles[map.MAP_HEIGHT / 2][x] = tile_rock;
+dyn_array_t g_hole_positions;
+
+void test_map_init(tile_map_t map_ground, tile_map_t map_surface) {
+  // Place walls and rocks on surface
+  for (int x = 0; x < map_surface.MAP_WIDTH; x++) {
+    if (x > (map_surface.MAP_WIDTH / 2) - 4 &&
+        x < (map_surface.MAP_WIDTH / 2) + 4)
+      map_surface.p_tiles[map_surface.MAP_HEIGHT / 2][x] = tile_rock;
     else
-      map.p_tiles[map.MAP_HEIGHT / 2][x] = tile_wall;
+      map_surface.p_tiles[map_surface.MAP_HEIGHT / 2][x] = tile_wall;
   }
 
-  map.p_tiles[(map.MAP_HEIGHT / 2) + 5][map.MAP_WIDTH / 2] = tile_hole;
+  g_hole_positions = array_create(4, T_VEC);
+  vec2_t start_pos = {.y = (map_ground.MAP_HEIGHT / 2) + 5,
+                      .x = (map_ground.MAP_WIDTH / 2) - 1};
+  // Place holes on ground
+  for (int i = 0; i < 3; i++) {
+    int y = start_pos.y;
+    int x = start_pos.x + i;
+    vec2_t pos = {y, x};
+
+    map_ground.p_tiles[y][x] = tile_hole;
+    array_push(&g_hole_positions, i, (void *)&pos);
+  }
 }

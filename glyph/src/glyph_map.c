@@ -18,6 +18,7 @@ tile_map_t map_create(view_data_t *p_view) {
     // Init tiles
     for (int x = 0; x < map.MAP_WIDTH; x++) {
       map.p_tiles[y][x].ch = ' ';
+      map.p_tiles[y][x].occupied = false;
       map.p_tiles[y][x].blocks_movement = false;
       map.p_tiles[y][x].movable = false;
     }
@@ -34,11 +35,14 @@ void map_set_tile_at(tile_map_t map, tile_t tile, vec2_t pos) {
   map.p_tiles[pos.y][pos.x] = tile;
 }
 
+// Could maybe be a view function instead
 void map_draw(view_data_t *p_view, tile_map_t map) {
   for (int y = 0; y < map.MAP_HEIGHT; y++) {
     for (int x = 0; x < map.MAP_WIDTH; x++) {
-      view_draw_char_at(p_view, (vec2_t){y, x}, map.p_tiles[y][x].ch,
-                        map.p_tiles[y][x].color);
+      // Only draw non empty tiles
+      if (map.p_tiles[y][x].occupied)
+        view_draw_char_at(p_view, (vec2_t){y, x}, map.p_tiles[y][x].ch,
+                          map.p_tiles[y][x].color);
     }
   }
 }

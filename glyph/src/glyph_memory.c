@@ -6,6 +6,8 @@ size_t get_element_size(data_type_t type) {
     type_size = sizeof(int);
   else if (type == T_ENTITY)
     type_size = sizeof(entity_t);
+  else if (type == T_VEC)
+    type_size = sizeof(vec2_t);
 
   return type_size;
 }

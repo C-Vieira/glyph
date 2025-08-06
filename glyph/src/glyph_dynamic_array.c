@@ -29,6 +29,9 @@ void array_push(dyn_array_t *p_array, size_t index, void *value) {
   } else if (p_array->type == T_ENTITY) {
     entity_t *ent_ptr = (entity_t *)value;
     ((entity_t *)p_array->p_data)[index] = *ent_ptr;
+  } else if (p_array->type == T_VEC) {
+    vec2_t *vec_ptr = (vec2_t *)value;
+    ((vec2_t *)p_array->p_data)[index] = *vec_ptr;
   }
   p_array->occupied++;
 }

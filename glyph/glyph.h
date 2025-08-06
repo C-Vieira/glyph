@@ -44,7 +44,7 @@ bool vector_equals(vec2_t vec1, vec2_t vec2);
 
 // ----Memory----------------
 // Type Enum
-typedef enum { T_INT, T_ENTITY } data_type_t;
+typedef enum { T_INT, T_ENTITY, T_VEC } data_type_t;
 
 size_t get_element_size(data_type_t type);
 void *mem_allocate(size_t num_elements, size_t element_size);
@@ -94,8 +94,10 @@ void queue_free(queue_t *p_queue);
 // (Experimental)
 // ----Tile------------------
 typedef struct {
+  int id;
   chtype ch;
   int color;
+  bool occupied;
   bool blocks_movement;
   bool movable;
 } tile_t;
