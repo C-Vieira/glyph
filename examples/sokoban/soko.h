@@ -11,6 +11,8 @@
 #define TILE_ROCK 2
 #define TILE_HOLE 3
 #define TILE_FILLED_HOLE 4
+#define TILE_CONVEYOR_LEFT 5
+#define TILE_CONVEYOR_RIGHT 5
 
 // Tile Templates
 extern tile_t tile_empty;
@@ -18,10 +20,14 @@ extern tile_t tile_wall;
 extern tile_t tile_rock;
 extern tile_t tile_hole;
 extern tile_t tile_filled_hole;
+extern tile_t tile_conveyor_left;
+extern tile_t tile_conveyor_right;
 
 // ----Map-------------------
 // Hole tile positions
 extern dyn_array_t g_hole_positions;
+// Conveyor tile positions
+extern dyn_array_t g_conveyor_positions;
 
 // Test
 void test_level_init(tile_map_t map);

@@ -75,6 +75,7 @@ typedef struct {
 
 dyn_array_t array_create(size_t capacity, data_type_t type);
 void array_push(dyn_array_t *p_array, size_t index, void *p_value);
+void *array_get_at(dyn_array_t *p_array, size_t element_size, size_t index);
 void array_free(dyn_array_t *p_array);
 
 // ----Queue-----------------

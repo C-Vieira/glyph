@@ -36,4 +36,10 @@ void array_push(dyn_array_t *p_array, size_t index, void *value) {
   p_array->occupied++;
 }
 
+// Probably more convoluted than just indexing into the array and
+// casting manually ... (keeping it here just for future reference)
+void *array_get_at(dyn_array_t *p_array, size_t element_size, size_t index) {
+  return (char *)p_array->p_data + (element_size * index);
+}
+
 void array_free(dyn_array_t *p_array) { free(p_array->p_data); }

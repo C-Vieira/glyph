@@ -68,24 +68,24 @@ void soko_game_handle_input() {
   s_player.dir = new_dir;
 }
 
-// Test
-bool should_move(vec2_t new_pos) {
+// Tile pushing and collision logic
+// move_dir is the direction to move movable tiles
+internal bool should_move(vec2_t new_pos, vec2_t move_dir) {
   // At border
   if (view_at_border(p_game_view, new_pos))
     return false;
 
-  // Get tile and ground tile at new pos
+  // Get tile at new pos
   tile_t tile = map_get_tile_at(g_map_surface, new_pos);
-  tile_t ground = map_get_tile_at(g_map_ground, new_pos);
 
   // Blocking tile
-  if (tile.blocks_movement || ground.blocks_movement)
+  if (tile.blocks_movement)
     return false;
 
   // If it's a movable tile
   if (tile.movable) {
     // Get tile one cell beyond
-    vec2_t tile_new_pos = vector_add(new_pos, s_player.dir);
+    vec2_t tile_new_pos = vector_add(new_pos, move_dir);
     tile_t next_tile = map_get_tile_at(g_map_surface, tile_new_pos);
 
     // Tile is colliding with border / wall or other movable tile
@@ -93,7 +93,13 @@ bool should_move(vec2_t new_pos) {
         next_tile.blocks_movement || next_tile.movable)
       return false;
 
+    // Check if player is in the way
+    // Player hasn't moved yet so we add pos + dir
+    if (vector_equals(tile_new_pos, vector_add(s_player.pos, s_player.dir)))
+      return false;
+
     // NOTE: We move the tile right here. This happens before the player moves
+    // TODO: Move tile should be its own function
     // Update movable tile pos
     map_set_tile_at(g_map_surface, tile_empty, new_pos);
     map_set_tile_at(g_map_surface, tile_rock, tile_new_pos);
@@ -105,38 +111,100 @@ bool should_move(vec2_t new_pos) {
   return true;
 }
 
-void soko_game_update() {
+internal void update_conveyors() {
+  // Update conveyor tiles
+  for (int i = 0; i < g_conveyor_positions.occupied; i++) {
+    vec2_t conv_pos = ((vec2_t *)g_conveyor_positions.p_data)[i];
+
+    // If there's a rock tile above
+    if (map_get_tile_at(g_map_surface, conv_pos).id == TILE_ROCK &&
+        map_get_tile_at(g_map_ground, conv_pos).id == TILE_CONVEYOR_RIGHT) {
+
+      // Update movable tile pos
+      vec2_t next_pos = vector_add(conv_pos, VEC_RIGHT);
+      // Check for collisions
+      if (should_move(next_pos, VEC_RIGHT)) {
+
+        // Check if player is in the way
+        // Don't move tiles into the player pos
+        if (vector_equals(next_pos, s_player.pos))
+          break;
+
+        map_set_tile_at(g_map_surface, tile_empty, conv_pos);
+        map_set_tile_at(g_map_surface, tile_rock, next_pos);
+
+        // Update visuals
+        view_draw_tile_at(p_game_view, g_map_ground, conv_pos);
+        view_draw_tile_at(p_game_view, g_map_surface, next_pos);
+
+        break;
+      }
+    }
+  }
+}
+
+internal void update_player() {
   vec2_t new_pos = vector_add(s_player.dir, s_player.pos);
 
   // Check collisions
-  if (should_move(new_pos)) {
-
-    // Testing
-    // Update special tiles
-    for (int i = 0; i < g_hole_positions.occupied; i++) {
-      vec2_t hole_pos = ((vec2_t *)g_hole_positions.p_data)[i];
-
-      // If there's a rock tile above
-      if (map_get_tile_at(g_map_surface, hole_pos).id == TILE_ROCK &&
-          map_get_tile_at(g_map_ground, hole_pos).id == TILE_HOLE) {
-        // Plug the hole
-        map_set_tile_at(g_map_ground, tile_filled_hole, hole_pos);
-
-        // Delete the rock
-        map_set_tile_at(g_map_surface, tile_empty, hole_pos);
-
-        // Update visuals
-        view_draw_tile_at(p_game_view, g_map_ground, hole_pos);
-      }
-    }
-
+  if (should_move(new_pos, s_player.dir)) {
     // Clear trail
     vec2_t old_pos = s_player.pos;
-    view_draw_tile_at(p_game_view, g_map_ground, old_pos);
+
+    // Sanity check for if a tile is ever moved into the player's pos first, so
+    // we don't clear it ...
+    if (map_get_tile_at(g_map_surface, old_pos).occupied)
+      view_draw_tile_at(p_game_view, g_map_surface, old_pos);
+    else
+      view_draw_tile_at(p_game_view, g_map_ground, old_pos);
 
     // Update player position
     s_player.pos = new_pos;
   }
+}
+
+internal void update_holes() {
+  // Update hole tiles
+  for (int i = 0; i < g_hole_positions.occupied; i++) {
+    vec2_t hole_pos = ((vec2_t *)g_hole_positions.p_data)[i];
+
+    // Player is about to move into hole
+    if (vector_equals(s_player.pos, hole_pos)) {
+      // Game Over
+      // TODO: Game Over
+      view_draw_message_at(p_game_view, 1, 1, (char *)"GAME OVER !");
+    }
+
+    // If there's a rock tile above
+    if (map_get_tile_at(g_map_surface, hole_pos).id == TILE_ROCK &&
+        map_get_tile_at(g_map_ground, hole_pos).id == TILE_HOLE) {
+      // Plug the hole
+      map_set_tile_at(g_map_ground, tile_filled_hole, hole_pos);
+
+      // Delete the rock
+      map_set_tile_at(g_map_surface, tile_empty, hole_pos);
+
+      // Update visuals
+      view_draw_tile_at(p_game_view, g_map_ground, hole_pos);
+    }
+  }
+}
+
+internal void check_win_condition() {
+  // TODO: Win condition
+}
+
+void soko_game_update() {
+
+  // Update moving conveyors
+  update_conveyors();
+  // Update player
+  update_player();
+  // Update hole and game over
+  update_holes();
+
+  // Check win condition
+  check_win_condition();
 }
 
 void soko_game_draw() {

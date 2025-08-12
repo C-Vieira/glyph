@@ -25,7 +25,7 @@ tile_t tile_hole = (tile_t){.id = TILE_HOLE,
                             .ch = 'X',
                             .color = COLOR_PAIR(RED_BLACK),
                             .occupied = true,
-                            .blocks_movement = true,
+                            .blocks_movement = false,
                             .movable = false};
 
 tile_t tile_filled_hole = (tile_t){.id = TILE_FILLED_HOLE,
@@ -34,6 +34,20 @@ tile_t tile_filled_hole = (tile_t){.id = TILE_FILLED_HOLE,
                                    .occupied = true,
                                    .blocks_movement = false,
                                    .movable = false};
+
+tile_t tile_conveyor_left = (tile_t){.id = TILE_CONVEYOR_LEFT,
+                                     .ch = '<',
+                                     .color = COLOR_PAIR(BLUE_BLACK),
+                                     .occupied = true,
+                                     .blocks_movement = false,
+                                     .movable = false};
+
+tile_t tile_conveyor_right = (tile_t){.id = TILE_CONVEYOR_RIGHT,
+                                      .ch = '>',
+                                      .color = COLOR_PAIR(BLUE_BLACK),
+                                      .occupied = true,
+                                      .blocks_movement = false,
+                                      .movable = false};
 
 // Test level
 void test_level_init(tile_map_t map) {
@@ -71,6 +85,7 @@ void test_level_init(tile_map_t map) {
 }
 
 dyn_array_t g_hole_positions;
+dyn_array_t g_conveyor_positions;
 
 void test_map_init(tile_map_t map_ground, tile_map_t map_surface) {
   // Place walls and rocks on surface
@@ -83,15 +98,28 @@ void test_map_init(tile_map_t map_ground, tile_map_t map_surface) {
   }
 
   g_hole_positions = array_create(4, T_VEC);
+  g_conveyor_positions = array_create(4, T_VEC);
+
   vec2_t start_pos = {.y = (map_ground.MAP_HEIGHT / 2) + 5,
                       .x = (map_ground.MAP_WIDTH / 2) - 1};
+
   // Place holes on ground
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 1; i++) {
     int y = start_pos.y;
-    int x = start_pos.x + i;
+    int x = start_pos.x + 8; // start_pos.x + i;
     vec2_t pos = {y, x};
 
     map_ground.p_tiles[y][x] = tile_hole;
     array_push(&g_hole_positions, i, (void *)&pos);
+  }
+
+  // Place conveyors on ground
+  for (int i = 0; i < 8; i++) {
+    int y = start_pos.y;
+    int x = start_pos.x + i;
+    vec2_t pos = {y, x};
+
+    map_ground.p_tiles[y][x] = tile_conveyor_right;
+    array_push(&g_conveyor_positions, i, (void *)&pos);
   }
 }
