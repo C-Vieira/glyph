@@ -12,7 +12,11 @@
 #define TILE_HOLE 3
 #define TILE_FILLED_HOLE 4
 #define TILE_CONVEYOR_LEFT 5
-#define TILE_CONVEYOR_RIGHT 5
+#define TILE_CONVEYOR_RIGHT 6
+#define TILE_CONVEYOR_DOWN 7
+#define TILE_LETTER_W 8
+#define TILE_LETTER_I 9
+#define TILE_LETTER_N 10
 
 // Tile Templates
 extern tile_t tile_empty;
@@ -28,6 +32,8 @@ extern tile_t tile_conveyor_right;
 extern dyn_array_t g_hole_positions;
 // Conveyor tile positions
 extern dyn_array_t g_conveyor_positions;
+// W tile position
+extern vec2_t g_w_tile_pos;
 
 // Test
 void test_level_init(tile_map_t map);

@@ -6,39 +6,73 @@ scene_data_t *gp_soko_game_scene;
 static entity_t s_player;
 
 // Views
-static view_data_t *p_game_view;
+static view_data_t *sp_game_view;
+static view_data_t *sp_victory_screen;
+static view_data_t *sp_game_over_screen;
 
 // TileMap
 tile_map_t g_map_surface;
 tile_map_t g_map_ground;
 
-void soko_game_init() {
-  // View Init
-  p_game_view = view_create(28, 50, 0, 0);
-  // p_game_view = view_create(9, 9, 0, 0);
-  view_add_border(p_game_view);
+internal void soko_game_over() {
+  // Game Over State
+  view_draw(sp_game_over_screen);
+  view_draw_message_at(sp_game_over_screen, 2, 1, "   GAME OVER!   ");
+  view_draw_message_at(sp_game_over_screen, 3, 1, ">'r' to restart<");
+  view_refresh(sp_game_over_screen);
+  while (view_get_input(sp_game_view) != 'r')
+    ;
+  view_clear(sp_game_over_screen);
+}
+
+internal void soko_game_won() {
+  // Game Over State
+  view_draw(sp_game_over_screen);
+  view_draw_message_at(sp_game_over_screen, 2, 1, "CONGRATULATIONS!");
+  view_draw_message_at(sp_game_over_screen, 3, 1, ">'r' to restart<");
+  view_refresh(sp_game_over_screen);
+  while (view_get_input(sp_game_view) != 'r')
+    ;
+  view_clear(sp_game_over_screen);
+}
+
+internal void soko_game_start() {
+  // Create game view
+  sp_game_view = view_create(28, 50, 0, 0);
+  // sp_game_view = view_create(9, 9, 0, 0);
+  view_add_border(sp_game_view);
 
   // Map Init
-  g_map_surface = map_create(p_game_view);
-  g_map_ground = map_create(p_game_view);
+  g_map_surface = map_create(sp_game_view);
+  g_map_ground = map_create(sp_game_view);
+
   // Load test level
   // test_level_init();
   test_map_init(g_map_ground, g_map_surface);
+
   // Draw map
-  map_draw(p_game_view, g_map_ground);
-  map_draw(p_game_view, g_map_surface);
+  map_draw(sp_game_view, g_map_ground);
+  map_draw(sp_game_view, g_map_surface);
 
   // Player Init
   s_player =
       (entity_t){.pos = {7, 4}, .ch = '@', .color = COLOR_PAIR(GREEN_BLACK)};
   // Draw it on the screen
-  view_draw_entity(p_game_view, &s_player);
+  view_draw_entity(sp_game_view, &s_player);
 
-  view_draw(p_game_view);
+  view_draw(sp_game_view);
+}
+
+void soko_game_init() {
+  // Views Init
+  sp_victory_screen = view_create(5, 18, 0, 0);
+  sp_game_over_screen = view_create(5, 18, 0, 0);
+
+  soko_game_start();
 }
 
 void soko_game_handle_input() {
-  chtype input = view_get_input(p_game_view);
+  chtype input = view_get_input(sp_game_view);
   if (input == 'q')
     g_game.should_close = true;
 
@@ -72,7 +106,7 @@ void soko_game_handle_input() {
 // move_dir is the direction to move movable tiles
 internal bool should_move(vec2_t new_pos, vec2_t move_dir) {
   // At border
-  if (view_at_border(p_game_view, new_pos))
+  if (view_at_border(sp_game_view, new_pos))
     return false;
 
   // Get tile at new pos
@@ -89,7 +123,7 @@ internal bool should_move(vec2_t new_pos, vec2_t move_dir) {
     tile_t next_tile = map_get_tile_at(g_map_surface, tile_new_pos);
 
     // Tile is colliding with border / wall or other movable tile
-    if (view_at_border(p_game_view, tile_new_pos) ||
+    if (view_at_border(sp_game_view, tile_new_pos) ||
         next_tile.blocks_movement || next_tile.movable)
       return false;
 
@@ -101,10 +135,14 @@ internal bool should_move(vec2_t new_pos, vec2_t move_dir) {
     // NOTE: We move the tile right here. This happens before the player moves
     // TODO: Move tile should be its own function
     // Update movable tile pos
-    map_set_tile_at(g_map_surface, tile_empty, new_pos);
-    map_set_tile_at(g_map_surface, tile_rock, tile_new_pos);
+    // Update W tile positon
+    if (tile.id == TILE_LETTER_W)
+      g_w_tile_pos = tile_new_pos;
 
-    view_draw_tile_at(p_game_view, g_map_surface, tile_new_pos);
+    map_set_tile_at(g_map_surface, tile_empty, new_pos);
+    map_set_tile_at(g_map_surface, tile, tile_new_pos);
+
+    view_draw_tile_at(sp_game_view, g_map_surface, tile_new_pos);
   }
 
   // Can move player
@@ -117,11 +155,13 @@ internal void update_conveyors() {
     vec2_t conv_pos = ((vec2_t *)g_conveyor_positions.p_data)[i];
 
     // If there's a rock tile above
-    if (map_get_tile_at(g_map_surface, conv_pos).id == TILE_ROCK &&
+    if (map_get_tile_at(g_map_surface, conv_pos).movable &&
         map_get_tile_at(g_map_ground, conv_pos).id == TILE_CONVEYOR_RIGHT) {
 
       // Update movable tile pos
+      tile_t tile = map_get_tile_at(g_map_surface, conv_pos);
       vec2_t next_pos = vector_add(conv_pos, VEC_RIGHT);
+
       // Check for collisions
       if (should_move(next_pos, VEC_RIGHT)) {
 
@@ -130,12 +170,17 @@ internal void update_conveyors() {
         if (vector_equals(next_pos, s_player.pos))
           break;
 
+        // Move tile
+        // Update W tile positon
+        if (tile.id == TILE_LETTER_W)
+          g_w_tile_pos = next_pos;
+
         map_set_tile_at(g_map_surface, tile_empty, conv_pos);
-        map_set_tile_at(g_map_surface, tile_rock, next_pos);
+        map_set_tile_at(g_map_surface, tile, next_pos);
 
         // Update visuals
-        view_draw_tile_at(p_game_view, g_map_ground, conv_pos);
-        view_draw_tile_at(p_game_view, g_map_surface, next_pos);
+        view_draw_tile_at(sp_game_view, g_map_ground, conv_pos);
+        view_draw_tile_at(sp_game_view, g_map_surface, next_pos);
 
         break;
       }
@@ -154,9 +199,9 @@ internal void update_player() {
     // Sanity check for if a tile is ever moved into the player's pos first, so
     // we don't clear it ...
     if (map_get_tile_at(g_map_surface, old_pos).occupied)
-      view_draw_tile_at(p_game_view, g_map_surface, old_pos);
+      view_draw_tile_at(sp_game_view, g_map_surface, old_pos);
     else
-      view_draw_tile_at(p_game_view, g_map_ground, old_pos);
+      view_draw_tile_at(sp_game_view, g_map_ground, old_pos);
 
     // Update player position
     s_player.pos = new_pos;
@@ -171,27 +216,63 @@ internal void update_holes() {
     // Player is about to move into hole
     if (vector_equals(s_player.pos, hole_pos)) {
       // Game Over
-      // TODO: Game Over
-      view_draw_message_at(p_game_view, 1, 1, (char *)"GAME OVER !");
+      if (map_get_tile_at(g_map_ground, hole_pos).id == TILE_HOLE) {
+        soko_game_over();
+        // Restart game
+        soko_game_start();
+      }
     }
 
-    // If there's a rock tile above
-    if (map_get_tile_at(g_map_surface, hole_pos).id == TILE_ROCK &&
+    // If there's a movable tile above
+    if (map_get_tile_at(g_map_surface, hole_pos).movable &&
         map_get_tile_at(g_map_ground, hole_pos).id == TILE_HOLE) {
       // Plug the hole
       map_set_tile_at(g_map_ground, tile_filled_hole, hole_pos);
 
-      // Delete the rock
+      // If the tile we are about to deleted is the W tile
+      // Can't win game, so do game over
+      if (map_get_tile_at(g_map_surface, hole_pos).id == TILE_LETTER_W) {
+        // Update visuals
+        map_set_tile_at(g_map_surface, tile_empty, hole_pos);
+        view_draw_tile_at(sp_game_view, g_map_ground, hole_pos);
+
+        // Game Over
+        soko_game_over();
+        // Restart game
+        soko_game_start();
+      }
+
+      // Delete the tile
       map_set_tile_at(g_map_surface, tile_empty, hole_pos);
 
       // Update visuals
-      view_draw_tile_at(p_game_view, g_map_ground, hole_pos);
+      view_draw_tile_at(sp_game_view, g_map_ground, hole_pos);
     }
   }
 }
 
 internal void check_win_condition() {
-  // TODO: Win condition
+  bool game_won = false;
+
+  vec2_t right = vector_add(g_w_tile_pos, VEC_RIGHT);
+  vec2_t down = vector_add(g_w_tile_pos, VEC_DOWN);
+  if ((map_get_tile_at(g_map_surface, right).id == TILE_LETTER_I &&
+       map_get_tile_at(g_map_surface, vector_add(right, VEC_RIGHT)).id ==
+           TILE_LETTER_N) ||
+      (map_get_tile_at(g_map_surface, down).id == TILE_LETTER_I &&
+       map_get_tile_at(g_map_surface, vector_add(down, VEC_DOWN)).id ==
+           TILE_LETTER_N)) {
+    game_won = true;
+  }
+
+  if (game_won) {
+    // Update visuals
+    view_draw_entity(sp_game_view, &s_player);
+
+    soko_game_won();
+    // Restart game
+    soko_game_start();
+  }
 }
 
 void soko_game_update() {
@@ -209,9 +290,9 @@ void soko_game_update() {
 
 void soko_game_draw() {
   // Draw player
-  view_draw_entity(p_game_view, &s_player);
+  view_draw_entity(sp_game_view, &s_player);
 
-  view_draw(p_game_view);
+  view_draw(sp_game_view);
 }
 
 void soko_game_shutdown() {
@@ -223,7 +304,7 @@ void soko_game_shutdown() {
   map_free(g_map_ground);
 
   // Free view windows
-  delwin(p_game_view->p_view_window);
+  delwin(sp_game_view->p_view_window);
 
-  free(p_game_view);
+  free(sp_game_view);
 }

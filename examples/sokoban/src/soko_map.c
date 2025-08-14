@@ -49,6 +49,34 @@ tile_t tile_conveyor_right = (tile_t){.id = TILE_CONVEYOR_RIGHT,
                                       .blocks_movement = false,
                                       .movable = false};
 
+tile_t tile_conveyor_down = (tile_t){.id = TILE_CONVEYOR_DOWN,
+                                     .ch = 'V',
+                                     .color = COLOR_PAIR(BLUE_BLACK),
+                                     .occupied = true,
+                                     .blocks_movement = false,
+                                     .movable = false};
+
+tile_t tile_letter_w = (tile_t){.id = TILE_LETTER_W,
+                                .ch = 'W',
+                                .color = COLOR_PAIR(WHITE_BLACK),
+                                .occupied = true,
+                                .blocks_movement = false,
+                                .movable = true};
+
+tile_t tile_letter_i = (tile_t){.id = TILE_LETTER_I,
+                                .ch = 'I',
+                                .color = COLOR_PAIR(WHITE_BLACK),
+                                .occupied = true,
+                                .blocks_movement = false,
+                                .movable = true};
+
+tile_t tile_letter_n = (tile_t){.id = TILE_LETTER_N,
+                                .ch = 'N',
+                                .color = COLOR_PAIR(WHITE_BLACK),
+                                .occupied = true,
+                                .blocks_movement = false,
+                                .movable = true};
+
 // Test level
 void test_level_init(tile_map_t map) {
   /* Test level layout
@@ -86,6 +114,7 @@ void test_level_init(tile_map_t map) {
 
 dyn_array_t g_hole_positions;
 dyn_array_t g_conveyor_positions;
+vec2_t g_w_tile_pos;
 
 void test_map_init(tile_map_t map_ground, tile_map_t map_surface) {
   // Place walls and rocks on surface
@@ -96,6 +125,13 @@ void test_map_init(tile_map_t map_ground, tile_map_t map_surface) {
     else
       map_surface.p_tiles[map_surface.MAP_HEIGHT / 2][x] = tile_wall;
   }
+
+  g_w_tile_pos = (vec2_t){5, map_surface.MAP_HEIGHT / 2};
+  map_set_tile_at(map_surface, tile_letter_w, g_w_tile_pos);
+  map_set_tile_at(map_surface, tile_letter_i,
+                  vector_add(g_w_tile_pos, VEC_LEFT));
+  map_set_tile_at(map_surface, tile_letter_n,
+                  vector_add(g_w_tile_pos, VEC_RIGHT));
 
   g_hole_positions = array_create(4, T_VEC);
   g_conveyor_positions = array_create(4, T_VEC);
