@@ -150,12 +150,33 @@ void test_map_init(tile_map_t map_ground, tile_map_t map_surface) {
   }
 
   // Place conveyors on ground
+  int y;
+  int x;
+  // Right
   for (int i = 0; i < 8; i++) {
-    int y = start_pos.y;
-    int x = start_pos.x + i;
+    y = start_pos.y;
+    x = start_pos.x + i;
     vec2_t pos = {y, x};
 
     map_ground.p_tiles[y][x] = tile_conveyor_right;
     array_push(&g_conveyor_positions, i, (void *)&pos);
+  }
+  // Down
+  for (int i = 0; i < 4; i++) {
+    y = start_pos.y + i;
+    vec2_t pos = {y, x};
+
+    map_ground.p_tiles[y][x] = tile_conveyor_down;
+    array_push(&g_conveyor_positions, g_conveyor_positions.occupied,
+               (void *)&pos);
+  }
+  // Left
+  for (int i = 0; i < 8; i++) {
+    x = start_pos.x + i;
+    vec2_t pos = {y, x};
+
+    map_ground.p_tiles[y][x] = tile_conveyor_left;
+    array_push(&g_conveyor_positions, g_conveyor_positions.occupied,
+               (void *)&pos);
   }
 }

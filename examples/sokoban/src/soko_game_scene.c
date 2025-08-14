@@ -154,16 +154,31 @@ internal void update_conveyors() {
   for (int i = 0; i < g_conveyor_positions.occupied; i++) {
     vec2_t conv_pos = ((vec2_t *)g_conveyor_positions.p_data)[i];
 
-    // If there's a rock tile above
-    if (map_get_tile_at(g_map_surface, conv_pos).movable &&
-        map_get_tile_at(g_map_ground, conv_pos).id == TILE_CONVEYOR_RIGHT) {
+    // If there's a movable tile above
+    if (map_get_tile_at(g_map_surface, conv_pos).movable) {
+      // Get conveyor type
+      int conv_id = map_get_tile_at(g_map_ground, conv_pos).id;
+
+      vec2_t conv_dir = VEC_ZERO;
+      // Set conveyor direction
+      switch (conv_id) {
+      case TILE_CONVEYOR_RIGHT:
+        conv_dir = VEC_RIGHT;
+        break;
+      case TILE_CONVEYOR_LEFT:
+        conv_dir = VEC_LEFT;
+        break;
+      case TILE_CONVEYOR_DOWN:
+        conv_dir = VEC_DOWN;
+        break;
+      }
 
       // Update movable tile pos
       tile_t tile = map_get_tile_at(g_map_surface, conv_pos);
-      vec2_t next_pos = vector_add(conv_pos, VEC_RIGHT);
+      vec2_t next_pos = vector_add(conv_pos, conv_dir);
 
       // Check for collisions
-      if (should_move(next_pos, VEC_RIGHT)) {
+      if (should_move(next_pos, conv_dir)) {
 
         // Check if player is in the way
         // Don't move tiles into the player pos
