@@ -73,8 +73,10 @@ void soko_game_init() {
 
 void soko_game_handle_input() {
   chtype input = view_get_input(sp_game_view);
-  if (input == 'q')
-    g_game.should_close = true;
+  if (input == 'q') {
+    // Transition to title scene
+    game_change_scene(gp_soko_title_scene);
+  }
 
   vec2_t new_dir;
   switch (input) {
@@ -142,6 +144,8 @@ internal bool should_move(vec2_t new_pos, vec2_t move_dir) {
     map_set_tile_at(g_map_surface, tile_empty, new_pos);
     map_set_tile_at(g_map_surface, tile, tile_new_pos);
 
+    // Update Visuals
+    view_draw_tile_at(sp_game_view, g_map_surface, new_pos);
     view_draw_tile_at(sp_game_view, g_map_surface, tile_new_pos);
   }
 
@@ -244,7 +248,7 @@ internal void update_holes() {
       // Plug the hole
       map_set_tile_at(g_map_ground, tile_filled_hole, hole_pos);
 
-      // If the tile we are about to deleted is the W tile
+      // If the tile we are about to delete is the W tile
       // Can't win game, so do game over
       if (map_get_tile_at(g_map_surface, hole_pos).id == TILE_LETTER_W) {
         // Update visuals

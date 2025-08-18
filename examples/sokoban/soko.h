@@ -49,4 +49,13 @@ void soko_game_update();
 void soko_game_draw();
 void soko_game_shutdown();
 
+// ----Title-Scene-----------
+extern scene_data_t *gp_soko_title_scene;
+
+void soko_title_init();
+void soko_title_handle_input();
+void soko_title_update();
+void soko_title_draw();
+void soko_title_shutdown();
+
 #endif // !SOKO_H

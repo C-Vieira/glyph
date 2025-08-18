@@ -2,6 +2,15 @@
 
 internal void soko_register_scenes() {
   // Scenes Init
+  // Title
+  gp_soko_title_scene = scene_create();
+
+  gp_soko_title_scene->c_init = soko_title_init;
+  gp_soko_title_scene->c_handle_input = soko_title_handle_input;
+  gp_soko_title_scene->c_update = soko_title_update;
+  gp_soko_title_scene->c_draw = soko_title_draw;
+  gp_soko_title_scene->c_shutdown = soko_title_shutdown;
+
   // Game
   gp_soko_game_scene = scene_create();
 
@@ -16,5 +25,5 @@ game_data_t glyph_main() {
   soko_register_scenes();
 
   return (game_data_t){.should_close = false,
-                       .p_curr_scene = gp_soko_game_scene};
+                       .p_curr_scene = gp_soko_title_scene};
 }
