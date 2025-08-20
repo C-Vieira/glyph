@@ -27,7 +27,13 @@ extern tile_t tile_filled_hole;
 extern tile_t tile_conveyor_left;
 extern tile_t tile_conveyor_right;
 
-// ----Map-------------------
+// ----Level-----------------
+// Level Ids
+#define LEVEL_TEST 0
+#define LEVEL_EASY 1
+#define LEVEL_MEDIUM 2
+#define LEVEL_HARD 3
+
 // Hole tile positions
 extern dyn_array_t g_hole_positions;
 // Conveyor tile positions
@@ -35,9 +41,8 @@ extern dyn_array_t g_conveyor_positions;
 // W tile position
 extern vec2_t g_w_tile_pos;
 
-// Test
-void test_level_init(tile_map_t map);
-void test_map_init(tile_map_t map_ground, tile_map_t map_surface);
+vec2_t soko_level_init(int level_id, tile_map_t map_ground,
+                       tile_map_t map_surface);
 
 // ----Sokoban---------------
 // ----Game-Scene------------

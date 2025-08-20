@@ -39,16 +39,15 @@ internal void soko_game_won() {
 internal void soko_game_start() {
   // Create game view
   sp_game_view = view_create(28, 50, 0, 0);
-  // sp_game_view = view_create(9, 9, 0, 0);
   view_add_border(sp_game_view);
 
   // Map Init
   g_map_surface = map_create(sp_game_view);
   g_map_ground = map_create(sp_game_view);
 
-  // Load test level
-  // test_level_init();
-  test_map_init(g_map_ground, g_map_surface);
+  // Load level
+  vec2_t start_pos;
+  start_pos = soko_level_init(LEVEL_TEST, g_map_ground, g_map_surface);
 
   // Draw map
   map_draw(sp_game_view, g_map_ground);
@@ -56,7 +55,7 @@ internal void soko_game_start() {
 
   // Player Init
   s_player =
-      (entity_t){.pos = {7, 4}, .ch = '@', .color = COLOR_PAIR(GREEN_BLACK)};
+      (entity_t){.pos = start_pos, .ch = '@', .color = COLOR_PAIR(GREEN_BLACK)};
   // Draw it on the screen
   view_draw_entity(sp_game_view, &s_player);
 
