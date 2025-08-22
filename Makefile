@@ -34,7 +34,7 @@ glyph_fclean: glyph_clean
 CFLAGS = -std=c99 -Wall -Werror -g ##-fsanitize=address
 
 ## Flags for linking libraries to game source
-LDFLAGS = -L. -lglyph -lncurses
+LDFLAGS = -L. -lglyph -lmenu -lncurses
 
 ## Snake Example
 SNAKE_SOURCE = $(wildcard ./examples/snake/src/*.c)

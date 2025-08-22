@@ -3,6 +3,7 @@
 
 // ----Includes--------------
 #include "../../glyph/glyph.h"
+#include <string.h>
 
 // ----Tile------------------
 // Tile Ids
@@ -30,12 +31,14 @@ extern tile_t tile_conveyor_right;
 
 // ----Level-----------------
 // Level Ids
-#define LEVEL_TEST 0
-#define LEVEL_EASY 1
-#define LEVEL_MEDIUM 2
-#define LEVEL_HARD 3
+#define LEVEL_EASY 0
+#define LEVEL_MEDIUM 1
+#define LEVEL_HARD 2
+#define LEVEL_TEST 100
 
 // Level state
+// Current level
+extern int curr_level;
 // Hole tile positions
 extern dyn_array_t g_hole_positions;
 // Conveyor tile positions
@@ -47,15 +50,6 @@ vec2_t soko_level_init(int level_id, tile_map_t map_ground,
                        tile_map_t map_surface);
 
 // ----Sokoban---------------
-// ----Game-Scene------------
-extern scene_data_t *gp_soko_game_scene;
-
-void soko_game_init();
-void soko_game_handle_input();
-void soko_game_update();
-void soko_game_draw();
-void soko_game_shutdown();
-
 // ----Title-Scene-----------
 extern scene_data_t *gp_soko_title_scene;
 
@@ -64,5 +58,23 @@ void soko_title_handle_input();
 void soko_title_update();
 void soko_title_draw();
 void soko_title_shutdown();
+
+// ----LevelSelect-Scene-----
+extern scene_data_t *gp_soko_lvlselect_scene;
+
+void soko_lvlselect_init();
+void soko_lvlselect_handle_input();
+void soko_lvlselect_update();
+void soko_lvlselect_draw();
+void soko_lvlselect_shutdown();
+
+// ----Game-Scene------------
+extern scene_data_t *gp_soko_game_scene;
+
+void soko_game_init();
+void soko_game_handle_input();
+void soko_game_update();
+void soko_game_draw();
+void soko_game_shutdown();
 
 #endif // !SOKO_H

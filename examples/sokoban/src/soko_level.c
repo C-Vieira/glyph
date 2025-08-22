@@ -1,6 +1,4 @@
 #include "../soko.h"
-#include <stdbool.h>
-#include <string.h>
 
 // Tile templates
 tile_t tile_empty = (tile_t){.id = TILE_EMPTY,
@@ -87,6 +85,7 @@ tile_t tile_player_spawn = (tile_t){.id = TILE_PLAYER_SPAWN,
                                     .movable = false};
 
 //----Levels--------------------------
+int curr_level = 100;
 dyn_array_t g_hole_positions;
 dyn_array_t g_conveyor_positions;
 vec2_t g_w_tile_pos;

@@ -11,6 +11,15 @@ internal void soko_register_scenes() {
   gp_soko_title_scene->c_draw = soko_title_draw;
   gp_soko_title_scene->c_shutdown = soko_title_shutdown;
 
+  // Level Select
+  gp_soko_lvlselect_scene = scene_create();
+
+  gp_soko_lvlselect_scene->c_init = soko_lvlselect_init;
+  gp_soko_lvlselect_scene->c_handle_input = soko_lvlselect_handle_input;
+  gp_soko_lvlselect_scene->c_update = soko_lvlselect_update;
+  gp_soko_lvlselect_scene->c_draw = soko_lvlselect_draw;
+  gp_soko_lvlselect_scene->c_shutdown = soko_lvlselect_shutdown;
+
   // Game
   gp_soko_game_scene = scene_create();
 

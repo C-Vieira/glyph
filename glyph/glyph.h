@@ -3,6 +3,7 @@
 
 // ----Includes--------------
 #include <curses.h>
+#include <menu.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>

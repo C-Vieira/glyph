@@ -47,7 +47,7 @@ internal void soko_game_start() {
 
   // Load level
   vec2_t start_pos;
-  start_pos = soko_level_init(LEVEL_TEST, g_map_ground, g_map_surface);
+  start_pos = soko_level_init(curr_level, g_map_ground, g_map_surface);
 
   // Draw map
   map_draw(sp_game_view, g_map_ground);
@@ -73,8 +73,8 @@ void soko_game_init() {
 void soko_game_handle_input() {
   chtype input = view_get_input(sp_game_view);
   if (input == 'q') {
-    // Transition to title scene
-    game_change_scene(gp_soko_title_scene);
+    // Transition to lvl select scene
+    game_change_scene(gp_soko_lvlselect_scene);
   }
 
   vec2_t new_dir;

@@ -30,8 +30,8 @@ void soko_title_handle_input() {
   if (view_get_input(sp_title_screen) == 'q') {
     g_game.should_close = true;
   } else {
-    // Transition to game scene
-    game_change_scene(gp_soko_game_scene);
+    // Transition to lvl select scene
+    game_change_scene(gp_soko_lvlselect_scene);
   }
 }
 
