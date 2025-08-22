@@ -17,6 +17,7 @@
 #define TILE_LETTER_W 8
 #define TILE_LETTER_I 9
 #define TILE_LETTER_N 10
+#define TILE_PLAYER_SPAWN 11
 
 // Tile Templates
 extern tile_t tile_empty;
@@ -34,6 +35,7 @@ extern tile_t tile_conveyor_right;
 #define LEVEL_MEDIUM 2
 #define LEVEL_HARD 3
 
+// Level state
 // Hole tile positions
 extern dyn_array_t g_hole_positions;
 // Conveyor tile positions

@@ -1,5 +1,6 @@
 #include "../soko.h"
-#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
 
 // Tile templates
 tile_t tile_empty = (tile_t){.id = TILE_EMPTY,
@@ -78,149 +79,96 @@ tile_t tile_letter_n = (tile_t){.id = TILE_LETTER_N,
                                 .blocks_movement = false,
                                 .movable = true};
 
+tile_t tile_player_spawn = (tile_t){.id = TILE_PLAYER_SPAWN,
+                                    .ch = '.',
+                                    .color = COLOR_PAIR(GREEN_BLACK),
+                                    .occupied = true,
+                                    .blocks_movement = false,
+                                    .movable = false};
+
 //----Levels--------------------------
-// Test level
-// internal void test_level_init(tile_map_t map) {
-/* Test level layout
-   "##   ##"  7 x 7 + border = 9 x 9
-   "#OO OO#"
-   "# OOO #"
-   "#O   O#"
-   "# OOO #"
-   "#     #"
-   "#  @  #"  */
-
-/*int level[9][9] = {
-    [0] = {1, 1, 1, 1, 1, 1, 1, 1, 1}, [1] = {1, 1, 0, 0, 0, 0, 0, 1, 1},
-    [2] = {1, 1, 1, 0, 0, 0, 1, 1, 1}, [3] = {1, 1, 2, 2, 0, 2, 2, 1, 1},
-    [4] = {1, 1, 0, 2, 2, 2, 0, 1, 1}, [5] = {1, 1, 2, 0, 0, 0, 2, 1, 1},
-    [6] = {1, 1, 0, 2, 2, 2, 0, 1, 1}, [7] = {1, 1, 0, 0, 0, 0, 0, 1, 1},
-    [8] = {1, 1, 1, 1, 1, 1, 1, 1, 1}};
-
-for (int y = 0; y < map.MAP_HEIGHT; y++) {
-  for (int x = 0; x < map.MAP_WIDTH; x++) {
-    switch (level[y][x]) {
-    case 1:
-      map.p_tiles[y][x] = tile_wall;
-      break;
-    case 2:
-      map.p_tiles[y][x] = tile_rock;
-      break;
-    case 0:
-      map.p_tiles[y][x] = tile_empty;
-      break;
-    }
-  }
-}
-}*/
-
 dyn_array_t g_hole_positions;
 dyn_array_t g_conveyor_positions;
 vec2_t g_w_tile_pos;
 
-// TODO: Level layout loader
-internal void load_level_layout(int level_array[][50], int rows) {
-  FILE *p_file;
+// Level layout loader
+internal void load_level_layout(int rows, int cols, int level_array[][cols],
+                                char *layout_path) {
+  FILE *fh_layout_file;
 
-  p_file = fopen("examples/sokoban/levels/level_test_layout_surface.txt", "r");
+  fh_layout_file = fopen(layout_path, "r");
 
-  if (p_file == NULL) {
+  if (fh_layout_file == NULL) {
     fprintf(stderr, "ERROR: couldn't open specified file\n");
     exit(1);
   }
 
-  int tile_id = 0;
+  char buffer[cols + 1];
+  memset(buffer, 0, sizeof(buffer));
   for (int y = 0; y < rows; y++) {
-    for (int x = 0; x < 50; x++) {
-      if (fscanf(p_file, "%d", &tile_id) == EOF)
-        break;
-      level_array[y][x] = tile_id;
+    if (fgets(buffer, cols + 1, fh_layout_file) == NULL)
+      break;
+    if (strlen(buffer) == cols) {
+      for (int x = 0; x < cols + 1; x++) {
+        switch (buffer[x]) {
+        case '0':
+          level_array[y][x] = TILE_EMPTY;
+          break;
+        case '#':
+          level_array[y][x] = TILE_WALL;
+          break;
+        case 'O':
+          level_array[y][x] = TILE_ROCK;
+          break;
+        case 'X':
+          level_array[y][x] = TILE_HOLE;
+          break;
+        case '>':
+          level_array[y][x] = TILE_CONVEYOR_RIGHT;
+          break;
+        case 'V':
+          level_array[y][x] = TILE_CONVEYOR_DOWN;
+          break;
+        case '<':
+          level_array[y][x] = TILE_CONVEYOR_LEFT;
+          break;
+        case '.':
+          level_array[y][x] = TILE_PLAYER_SPAWN;
+          break;
+        case 'W':
+          level_array[y][x] = TILE_LETTER_W;
+          break;
+        case 'I':
+          level_array[y][x] = TILE_LETTER_I;
+          break;
+        case 'N':
+          level_array[y][x] = TILE_LETTER_N;
+          break;
+        }
+      }
+    } else {
+      // Read in some leftover input, don't increment y
+      y--;
     }
   }
 
-  fclose(p_file);
+  fclose(fh_layout_file);
 }
 
-internal vec2_t level_test_init(tile_map_t map_ground, tile_map_t map_surface) {
-  // Place walls and rocks on surface
-  for (int x = 0; x < map_surface.MAP_WIDTH; x++) {
-    if (x > (map_surface.MAP_WIDTH / 2) - 4 &&
-        x < (map_surface.MAP_WIDTH / 2) + 4)
-      map_surface.p_tiles[map_surface.MAP_HEIGHT / 2][x] = tile_rock;
-    else
-      map_surface.p_tiles[map_surface.MAP_HEIGHT / 2][x] = tile_wall;
-  }
-
-  vec2_t player_start_pos = {7, 4};
-
-  g_w_tile_pos = (vec2_t){5, map_surface.MAP_HEIGHT / 2};
-  map_set_tile_at(map_surface, tile_letter_w, g_w_tile_pos);
-  map_set_tile_at(map_surface, tile_letter_i,
-                  vector_add(g_w_tile_pos, VEC_LEFT));
-  map_set_tile_at(map_surface, tile_letter_n,
-                  vector_add(g_w_tile_pos, VEC_RIGHT));
-
-  g_hole_positions = array_create(4, T_VEC);
-  g_conveyor_positions = array_create(4, T_VEC);
-
-  vec2_t start_pos = {.y = (map_ground.MAP_HEIGHT / 2) + 5,
-                      .x = (map_ground.MAP_WIDTH / 2) - 1};
-
-  // Place holes on ground
-  for (int i = 0; i < 1; i++) {
-    int y = start_pos.y;
-    int x = start_pos.x + 8; // start_pos.x + i;
-    vec2_t pos = {y, x};
-
-    map_ground.p_tiles[y][x] = tile_hole;
-    array_push(&g_hole_positions, i, (void *)&pos);
-  }
-
-  // Place conveyors on ground
-  int y;
-  int x;
-  // Right
-  for (int i = 0; i < 8; i++) {
-    y = start_pos.y;
-    x = start_pos.x + i;
-    vec2_t pos = {y, x};
-
-    map_ground.p_tiles[y][x] = tile_conveyor_right;
-    array_push(&g_conveyor_positions, i, (void *)&pos);
-  }
-  // Down
-  for (int i = 0; i < 4; i++) {
-    y = start_pos.y + i;
-    vec2_t pos = {y, x};
-
-    map_ground.p_tiles[y][x] = tile_conveyor_down;
-    array_push(&g_conveyor_positions, g_conveyor_positions.occupied,
-               (void *)&pos);
-  }
-  // Left
-  for (int i = 0; i < 8; i++) {
-    x = start_pos.x + i;
-    vec2_t pos = {y, x};
-
-    map_ground.p_tiles[y][x] = tile_conveyor_left;
-    array_push(&g_conveyor_positions, g_conveyor_positions.occupied,
-               (void *)&pos);
-  }
-
-  return player_start_pos;
-}
-
-internal vec2_t level_easy_init(tile_map_t map_ground, tile_map_t map_surface) {
-  vec2_t player_start_pos = {1, 1};
+internal vec2_t load_level(char *layout_path, tile_map_t map_ground,
+                           tile_map_t map_surface) {
+  vec2_t player_start_pos = {0, 0};
 
   g_hole_positions = array_create(4, T_VEC);
   g_conveyor_positions = array_create(4, T_VEC);
 
   // Load level layout from file
   int level_surface[map_surface.MAP_HEIGHT][map_surface.MAP_WIDTH];
-  load_level_layout(level_surface, map_surface.MAP_HEIGHT);
+  load_level_layout(map_surface.MAP_HEIGHT, map_surface.MAP_WIDTH,
+                    level_surface, layout_path);
 
-  // Place surface tiles
+  // Place tiles based on layout
+  vec2_t pos;
   for (int y = 0; y < map_surface.MAP_HEIGHT; y++) {
     for (int x = 0; x < map_surface.MAP_WIDTH; x++) {
       switch (level_surface[y][x]) {
@@ -233,6 +181,43 @@ internal vec2_t level_easy_init(tile_map_t map_ground, tile_map_t map_surface) {
       case TILE_ROCK:
         map_surface.p_tiles[y][x] = tile_rock;
         break;
+      case TILE_HOLE:
+        map_ground.p_tiles[y][x] = tile_hole;
+        pos = (vec2_t){y, x};
+        array_push(&g_hole_positions, g_hole_positions.occupied, (void *)&pos);
+        break;
+      case TILE_CONVEYOR_RIGHT:
+        map_ground.p_tiles[y][x] = tile_conveyor_right;
+        pos = (vec2_t){y, x};
+        array_push(&g_conveyor_positions, g_conveyor_positions.occupied,
+                   (void *)&pos);
+        break;
+      case TILE_CONVEYOR_DOWN:
+        map_ground.p_tiles[y][x] = tile_conveyor_down;
+        pos = (vec2_t){y, x};
+        array_push(&g_conveyor_positions, g_conveyor_positions.occupied,
+                   (void *)&pos);
+        break;
+      case TILE_CONVEYOR_LEFT:
+        map_ground.p_tiles[y][x] = tile_conveyor_left;
+        pos = (vec2_t){y, x};
+        array_push(&g_conveyor_positions, g_conveyor_positions.occupied,
+                   (void *)&pos);
+        break;
+      case TILE_PLAYER_SPAWN:
+        map_ground.p_tiles[y][x] = tile_player_spawn;
+        player_start_pos = (vec2_t){y, x};
+        break;
+      case TILE_LETTER_W:
+        map_surface.p_tiles[y][x] = tile_letter_w;
+        g_w_tile_pos = (vec2_t){y, x};
+        break;
+      case TILE_LETTER_I:
+        map_surface.p_tiles[y][x] = tile_letter_i;
+        break;
+      case TILE_LETTER_N:
+        map_surface.p_tiles[y][x] = tile_letter_n;
+        break;
       }
     }
   }
@@ -240,27 +225,26 @@ internal vec2_t level_easy_init(tile_map_t map_ground, tile_map_t map_surface) {
   return player_start_pos;
 }
 
+// Somewhat unnecessary intermediate functions ...
+internal vec2_t level_test_init(tile_map_t map_ground, tile_map_t map_surface) {
+  return load_level("examples/sokoban/levels/level_test_layout.txt", map_ground,
+                    map_surface);
+}
+
+internal vec2_t level_easy_init(tile_map_t map_ground, tile_map_t map_surface) {
+  return load_level("examples/sokoban/levels/level_easy_layout.txt", map_ground,
+                    map_surface);
+}
+
 internal vec2_t level_medium_init(tile_map_t map_ground,
                                   tile_map_t map_surface) {
-  vec2_t player_start_pos = {1, 1};
-
-  g_hole_positions = array_create(4, T_VEC);
-  g_conveyor_positions = array_create(4, T_VEC);
-
-  // TODO: Level layout
-
-  return player_start_pos;
+  return load_level("examples/sokoban/levels/level_medium_layout.txt",
+                    map_ground, map_surface);
 }
 
 internal vec2_t level_hard_init(tile_map_t map_ground, tile_map_t map_surface) {
-  vec2_t player_start_pos = {1, 1};
-
-  g_hole_positions = array_create(4, T_VEC);
-  g_conveyor_positions = array_create(4, T_VEC);
-
-  // TODO: Level layout
-
-  return player_start_pos;
+  return load_level("examples/sokoban/levels/level_hard_layout.txt", map_ground,
+                    map_surface);
 }
 
 vec2_t soko_level_init(int level_id, tile_map_t map_ground,
