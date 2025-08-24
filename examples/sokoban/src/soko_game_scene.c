@@ -16,6 +16,7 @@ tile_map_t g_map_ground;
 
 internal void soko_game_over() {
   // Game Over State
+  view_clear(sp_game_view);
   view_draw(sp_game_over_screen);
   view_draw_message_at(sp_game_over_screen, 2, 1, "   GAME OVER!   ");
   view_draw_message_at(sp_game_over_screen, 3, 1, ">'r' to restart<");
@@ -27,13 +28,14 @@ internal void soko_game_over() {
 
 internal void soko_game_won() {
   // Game Over State
-  view_draw(sp_game_over_screen);
-  view_draw_message_at(sp_game_over_screen, 2, 1, "CONGRATULATIONS!");
-  view_draw_message_at(sp_game_over_screen, 3, 1, ">'r' to restart<");
-  view_refresh(sp_game_over_screen);
+  view_clear(sp_game_view);
+  view_draw(sp_victory_screen);
+  view_draw_message_at(sp_victory_screen, 2, 1, "CONGRATULATIONS!");
+  view_draw_message_at(sp_victory_screen, 3, 1, ">'r' to restart<");
+  view_refresh(sp_victory_screen);
   while (view_get_input(sp_game_view) != 'r')
     ;
-  view_clear(sp_game_over_screen);
+  view_clear(sp_victory_screen);
 }
 
 internal void soko_game_start() {
@@ -247,9 +249,11 @@ internal void update_holes() {
       // Plug the hole
       map_set_tile_at(g_map_ground, tile_filled_hole, hole_pos);
 
-      // If the tile we are about to delete is the W tile
+      // If the tile we are about to delete is any of the letter tiles
       // Can't win game, so do game over
-      if (map_get_tile_at(g_map_surface, hole_pos).id == TILE_LETTER_W) {
+      tile_t tile = map_get_tile_at(g_map_surface, hole_pos);
+      if (tile.id == TILE_LETTER_W || tile.id == TILE_LETTER_I ||
+          tile.id == TILE_LETTER_N) {
         // Update visuals
         map_set_tile_at(g_map_surface, tile_empty, hole_pos);
         view_draw_tile_at(sp_game_view, g_map_ground, hole_pos);

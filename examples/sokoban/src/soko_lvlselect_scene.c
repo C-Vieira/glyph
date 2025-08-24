@@ -1,7 +1,4 @@
 #include "../soko.h"
-#include <curses.h>
-#include <menu.h>
-#include <string.h>
 
 internal void set_curr_level(int lvl_id) { curr_level = lvl_id; }
 
@@ -20,7 +17,7 @@ scene_data_t *gp_soko_lvlselect_scene;
 static view_data_t *sp_menu_screen;
 
 void soko_lvlselect_init() {
-  char *choices[] = {"Level 1", "Level 2", "Level 3"};
+  char *choices[] = {"Welcome", "Passage", "Breakout"};
 
   // Menu View Init
   sp_menu_screen = view_create(LINES, COLS, 0, 0);
