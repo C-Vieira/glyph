@@ -13,7 +13,10 @@ GLYPH_OFILES := $(GLYPH_SOURCE:.c=.o)
 ##all: glyph libglyph snake snake_run snake_clean
 
 ## Sokoban
-all: glyph libglyph sokoban sokoban_run sokoban_clean
+##all: glyph libglyph sokoban sokoban_run sokoban_clean
+
+## Cave Crawl
+all: glyph libglyph ccrawl ccrawl_run ccrawl_clean
 
 ## Compile source into obj files
 glyph:
@@ -61,3 +64,17 @@ sokoban_run:
 
 sokoban_clean: glyph_fclean
 	rm sokoban 
+
+## Cave Crawl Example
+CCRAWL_SOURCE = $(wildcard ./examples/cave_crawl/src/*.c)
+
+## Compile game source and link it with library
+ccrawl: glyph libglyph
+	$(CC) $(CFLAGS) $(CCRAWL_SOURCE) -o ccrawl $(LDFLAGS)
+
+ccrawl_run:
+	./ccrawl
+
+ccrawl_clean: glyph_fclean
+	rm ccrawl
+
