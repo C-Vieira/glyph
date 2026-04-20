@@ -43,6 +43,9 @@ extern const vec2_t VEC_ZERO;
 vec2_t vector_add(vec2_t vec1, vec2_t vec2);
 bool vector_equals(vec2_t vec1, vec2_t vec2);
 
+// ----Random----------------
+int randi_range(int from, int to);
+
 // ----Memory----------------
 // Type Enum
 typedef enum { T_INT, T_ENTITY, T_VEC } data_type_t;
@@ -150,7 +153,7 @@ void map_free(tile_map_t map);
 
 // ----Scene-----------------
 typedef struct {
-  view_data_t *p_main_view;
+  view_data_t *p_main_view; // Unused
   callback_t c_init;
   callback_t c_handle_input;
   callback_t c_update;
