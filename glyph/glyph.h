@@ -14,6 +14,9 @@
 // Static
 #define internal static
 
+#define MIN(a, b) (a < b) ? a : b
+#define MAX(a, b) (a > b) ? a : b
+
 // Color pairs
 #define WHITE_BLACK 1
 #define BLUE_BLACK 2
@@ -23,6 +26,7 @@
 #define BLACK_BLACK 6
 #define CYAN_BLACK 7
 #define MAGENTA_BLACK 8
+#define BLACK_WHITE 9
 
 // ----Utilities-------------
 // Generic Callback
@@ -45,10 +49,11 @@ bool vector_equals(vec2_t vec1, vec2_t vec2);
 
 // ----Random----------------
 int randi_range(int from, int to);
+bool rand_bool();
 
 // ----Memory----------------
 // Type Enum
-typedef enum { T_INT, T_ENTITY, T_VEC } data_type_t;
+typedef enum { T_INT, T_ENTITY, T_VEC, T_ROOM } data_type_t;
 
 size_t get_element_size(data_type_t type);
 void *mem_allocate(size_t num_elements, size_t element_size);
@@ -114,6 +119,15 @@ typedef struct {
   int MAP_WIDTH;
   tile_t **p_tiles;
 } tile_map_t;
+
+// (Experimental)
+// ----Room------------------
+typedef struct {
+  int height;
+  int width;
+  vec2_t upper_left_corner_pos;
+  vec2_t center_pos;
+} room_t;
 
 // ----View------------------
 typedef struct {

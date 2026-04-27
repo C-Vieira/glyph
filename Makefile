@@ -1,7 +1,9 @@
 ## Glyph Framework
 CC = gcc
 
-GLYPH_CFLAGS = -std=c99 -Wall -Werror -g ##-fsanitize=address
+## NOTE: Remember to put this flag back!
+## -Werror
+GLYPH_CFLAGS = -std=c99 -Wall -Wextra -g -fsanitize=undefined ##--verbose ##-fsanitize=address
 
 LIB_NAME = libglyph.a
 
@@ -34,7 +36,9 @@ glyph_fclean: glyph_clean
 
 ## Examples
 ## Compiler flags
-CFLAGS = -std=c99 -Wall -Werror -g ##-fsanitize=address
+## NOTE: Remember to put this flag back!
+## -Werror
+CFLAGS = -std=c99 -Wall -Wextra -g -fsanitize=undefined ##--verbose ##-fsanitize=address
 
 ## Flags for linking libraries to game source
 LDFLAGS = -L. -lglyph -lmenu -lncurses

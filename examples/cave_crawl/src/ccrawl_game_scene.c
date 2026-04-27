@@ -16,14 +16,14 @@ tile_map_t g_map;
 
 void ccrawl_game_init() {
   // Game view init
-  sp_game_view = view_create(30, 80, 0, 0);
+  sp_game_view = view_create(35, 90, 0, 0);
   view_add_border(sp_game_view);
 
   // Tilemap Init
   g_map = map_create(sp_game_view);
 
   // Call to generator to create level tiles
-  g_start_pos = generator_generate_level(rand() % 2, &g_map);
+  g_start_pos = generator_generate_level(1, g_map);
 
   // Player Init
   s_player = (entity_t){
@@ -44,7 +44,7 @@ void ccrawl_game_handle_input() {
   if (input == 'r') {
     // Shouldn't draw on handle input
     view_clear(sp_game_view);
-    g_start_pos = generator_generate_level(rand() % 2, &g_map);
+    g_start_pos = generator_generate_level(1, g_map);
     map_draw(sp_game_view, g_map);
   }
 

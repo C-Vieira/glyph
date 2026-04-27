@@ -32,6 +32,9 @@ void array_push(dyn_array_t *p_array, size_t index, void *value) {
   } else if (p_array->type == T_VEC) {
     vec2_t *vec_ptr = (vec2_t *)value;
     ((vec2_t *)p_array->p_data)[index] = *vec_ptr;
+  } else if (p_array->type == T_ROOM) {
+    room_t *room_ptr = (room_t *)value;
+    ((room_t *)p_array->p_data)[index] = *room_ptr;
   }
   p_array->occupied++;
 }

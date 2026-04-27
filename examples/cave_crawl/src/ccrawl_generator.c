@@ -11,7 +11,7 @@ tile_t tile_empty = (tile_t){.id = 0,
 
 tile_t tile_wall = (tile_t){.id = 1,
                             .ch = '#',
-                            .color = COLOR_PAIR(WHITE_BLACK),
+                            .color = COLOR_PAIR(BLACK_WHITE),
                             .blocks_movement = true,
                             .movable = false,
                             .occupied = true};
@@ -21,6 +21,7 @@ tile_t tile_wall = (tile_t){.id = 1,
 // Cell data
 typedef struct {
   int state;
+  bool reachable;
 } cell_t;
 
 // Globals
@@ -43,6 +44,7 @@ internal cell_t **init_world_cells() {
     for (int x = 0; x < WORLD_WIDTH; x++) {
       cells[y][x].state =
           rand() % 11 > 4 ? 1 : 0; // Greater chance for an alive cell
+                                   // rand() % 10 >= 5 ? 1 : 0;
     }
   }
 
@@ -63,17 +65,28 @@ internal int count_neighbors(int x, int y) {
   return g_world[x][y].state == 1 ? --sum : sum;
 }
 
-internal void update_world() {
+internal void update_world(int type_flag) {
   for (int i = 0; i < WORLD_HEIGHT; i++) {
     for (int j = 0; j < WORLD_WIDTH; j++) {
 
       int n_sum = count_neighbors(i, j); // Check neighborhood
 
       // Compute New States
-      if (n_sum >= 6 && g_world[i][j].state == 0)
-        g_buffer[i][j].state = 1;
-      else if (n_sum <= 3 && g_world[i][j].state == 1)
-        g_buffer[i][j].state = 0;
+      if (type_flag == 1) {
+        // CAVES
+        if (n_sum >= 6 && g_world[i][j].state == 0)
+          g_buffer[i][j].state = 1;
+        else if (n_sum <= 3 && g_world[i][j].state == 1)
+          g_buffer[i][j].state = 0;
+      } else {
+        // MAZE
+        if (n_sum == 3 && g_world[i][j].state == 0)
+          g_buffer[i][j].state = 1;
+        else if (n_sum > 0 && n_sum < 5 && g_world[i][j].state == 1)
+          g_buffer[i][j].state = 1;
+        else
+          g_buffer[i][j].state = 0;
+      }
     }
   }
   // Update world with new values
@@ -92,29 +105,21 @@ internal void free_world(void) {
 }
 
 // ----Random-Rooms-----------
-// Room data
-typedef struct {
-  int height;
-  int width;
-  vec2_t lr_corner_pos;
-  vec2_t center_pos;
-} room_t;
-
 internal room_t create_room(int y, int x, int height, int width) {
   int center_middle_y = y + (int)(height / 2);
   int center_middle_x = x + (int)(width / 2);
 
   return (room_t){.height = height,
                   .width = width,
-                  .lr_corner_pos = (vec2_t){y, x},
+                  .upper_left_corner_pos = (vec2_t){y, x},
                   .center_pos = (vec2_t){center_middle_y, center_middle_x}};
 }
 
 internal void add_room_to_map(room_t room, tile_map_t map) {
-  for (int y = room.lr_corner_pos.y; y < room.lr_corner_pos.y + room.height;
-       y++) {
-    for (int x = room.lr_corner_pos.x; x < room.lr_corner_pos.x + room.width;
-         x++) {
+  for (int y = room.upper_left_corner_pos.y;
+       y < room.upper_left_corner_pos.y + room.height; y++) {
+    for (int x = room.upper_left_corner_pos.x;
+         x < room.upper_left_corner_pos.x + room.width; x++) {
       map_set_tile_at(map, tile_empty, (vec2_t){y, x});
     }
   }
@@ -186,7 +191,30 @@ internal vec2_t init_map_rooms(tile_map_t map) {
   return start_pos;
 }
 
+// TEST
+void flood_fill(int x, int y) {
+  if ((g_world[y][x].state == 0) && (!g_world[y][x].reachable)) {
+    g_world[y][x].reachable = true;
+  } else {
+    return;
+  }
+  flood_fill(y, x + 1);
+  flood_fill(y, x - 1);
+  flood_fill(y + 1, x);
+  flood_fill(y - 1, x);
+}
+
+bool are_all_tiles_reachable(void) {
+  for (int count1 = 0; count1 < WORLD_HEIGHT; count1++)
+    for (int count2 = 0; count2 < WORLD_WIDTH; count2++)
+      if ((g_world[count1][count2].state == 0) &&
+          (!g_world[count1][count2].reachable))
+        return false;
+  return true;
+}
+
 // ----API--------------------
+/*
 vec2_t generator_generate_level(generator_type_e type, tile_map_t *p_map) {
   // Set globals
   WORLD_HEIGHT = p_map->MAP_HEIGHT;
@@ -202,10 +230,15 @@ vec2_t generator_generate_level(generator_type_e type, tile_map_t *p_map) {
     g_buffer = init_world_cells();
 
     // Generate level
+    // Initial maze test
+    // for (int j = 0; j < 25; j++) {
+    //   update_world(0);
+    // }
+    // Turn maze into cave
     for (int i = 0; i < num_generations; i++) {
-      update_world();
+      update_world(1);
     }
-    // Parse world to map
+    //  Parse world to map
     for (int y = 0; y < WORLD_HEIGHT; y++) {
       for (int x = 0; x < WORLD_WIDTH; x++) {
         g_world[y][x].state == 1
@@ -224,3 +257,4 @@ vec2_t generator_generate_level(generator_type_e type, tile_map_t *p_map) {
     return (vec2_t){5, 5};
   }
 }
+*/
