@@ -6,6 +6,7 @@
 // Tile Templates
 extern tile_t tile_empty;
 extern tile_t tile_wall;
+extern tile_t tile_exit;
 
 // ----Experimental----------
 // ----BSP-------------------
@@ -24,7 +25,7 @@ typedef struct bsp_node_t {
 // ----Generator-------------
 typedef enum { RAND_ROOMS, CA_CAVES } generator_type_e;
 
-vec2_t generator_generate_level(generator_type_e type, tile_map_t map);
+void generator_generate_level(generator_type_e type, tile_map_t *p_map);
 
 // ----Game-Scene------------
 extern scene_data_t *gp_ccrawl_game_scene;

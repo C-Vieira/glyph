@@ -118,6 +118,9 @@ typedef struct {
   int MAP_HEIGHT;
   int MAP_WIDTH;
   tile_t **p_tiles;
+
+  vec2_t start_pos;
+  vec2_t exit_pos;
 } tile_map_t;
 
 // (Experimental)

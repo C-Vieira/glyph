@@ -6,7 +6,6 @@ scene_data_t *gp_ccrawl_game_scene;
 
 // Player reference
 static entity_t s_player;
-vec2_t g_start_pos;
 
 // Views
 static view_data_t *sp_game_view;
@@ -23,11 +22,11 @@ void ccrawl_game_init() {
   g_map = map_create(sp_game_view);
 
   // Call to generator to create level tiles
-  g_start_pos = generator_generate_level(1, g_map);
+  generator_generate_level(1, &g_map);
 
   // Player Init
   s_player = (entity_t){
-      .pos = g_start_pos, .ch = '@', .color = COLOR_PAIR(GREEN_BLACK)};
+      .pos = g_map.start_pos, .ch = '@', .color = COLOR_PAIR(GREEN_BLACK)};
   // Draw it on the screen
   view_draw_entity(sp_game_view, &s_player);
 
@@ -44,7 +43,7 @@ void ccrawl_game_handle_input() {
   if (input == 'r') {
     // Shouldn't draw on handle input
     view_clear(sp_game_view);
-    g_start_pos = generator_generate_level(1, g_map);
+    generator_generate_level(1, &g_map);
     map_draw(sp_game_view, g_map);
   }
 
@@ -64,6 +63,21 @@ void ccrawl_game_handle_input() {
   }
   case 'd': {
     new_dir = VEC_RIGHT;
+    break;
+  }
+  case 'e': {
+    // Works well but you shouldn't
+    // update and draw on handle input...
+    // Player is over the exit
+    if (vector_equals(s_player.pos, g_map.exit_pos)) {
+      // Regenerate level
+      generator_generate_level(RAND_ROOMS, &g_map);
+      // Clear visuals
+      view_clear(sp_game_view);
+      map_draw(sp_game_view, g_map);
+      // Reset player pos
+      s_player.pos = g_map.start_pos;
+    }
     break;
   }
   default:
@@ -93,7 +107,12 @@ void ccrawl_game_update() {
 }
 
 void ccrawl_game_draw() {
-  // Draw player
+  // Draw exit
+  tile_t exit_tile = map_get_tile_at(g_map, g_map.exit_pos);
+  view_draw_char_at(sp_game_view, g_map.exit_pos, exit_tile.ch,
+                    exit_tile.color);
+
+  // Draw player (higher priority)
   view_draw_entity(sp_game_view, &s_player);
 
   view_draw(sp_game_view);

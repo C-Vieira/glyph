@@ -227,9 +227,15 @@ internal void bsp_free() {
   // or implement with memory arena
 }
 
-vec2_t generator_generate_level(generator_type_e type, tile_map_t map) {
+void generator_generate_level(generator_type_e type, tile_map_t *p_map) {
   g_rooms = array_create(4, T_ROOM);
-  bsp_start(map);
+  bsp_start(*p_map);
+
   room_t first_room = ((room_t *)g_rooms.p_data)[0];
-  return first_room.center_pos;
+  room_t last_room = ((room_t *)g_rooms.p_data)[g_rooms.occupied - 1];
+  // Place exit
+  map_set_tile_at(*p_map, tile_exit, last_room.center_pos);
+
+  p_map->start_pos = first_room.center_pos;
+  p_map->exit_pos = last_room.center_pos;
 }

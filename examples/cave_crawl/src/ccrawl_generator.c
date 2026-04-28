@@ -16,6 +16,13 @@ tile_t tile_wall = (tile_t){.id = 1,
                             .movable = false,
                             .occupied = true};
 
+tile_t tile_exit = (tile_t){.id = 2,
+                            .ch = '<',
+                            .color = COLOR_PAIR(YELLOW_BLACK),
+                            .blocks_movement = false,
+                            .movable = false,
+                            .occupied = true};
+
 // ----Generator--------------
 // ----Cellular-Automata-Caves
 // Cell data
