@@ -27,6 +27,14 @@ typedef enum { RAND_ROOMS, CA_CAVES } generator_type_e;
 
 void generator_generate_level(generator_type_e type, tile_map_t *p_map);
 
+// ----FOV-------------------
+void fov_update(tile_map_t map, entity_t *player);
+void fov_clear(tile_map_t map, entity_t *player);
+
+// ----LOS-------------------
+bool los_is_visible(tile_map_t map, vec2_t origin, vec2_t target);
+int get_distance(vec2_t origin, vec2_t target);
+
 // ----Game-Scene------------
 extern scene_data_t *gp_ccrawl_game_scene;
 

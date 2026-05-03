@@ -17,6 +17,8 @@
 #define MIN(a, b) (a < b) ? a : b
 #define MAX(a, b) (a > b) ? a : b
 
+#define SIGN(a) (((a) < 0) ? -1 : 1)
+
 // Color pairs
 #define WHITE_BLACK 1
 #define BLUE_BLACK 2
@@ -27,6 +29,7 @@
 #define CYAN_BLACK 7
 #define MAGENTA_BLACK 8
 #define BLACK_WHITE 9
+#define BLACK_BLUE 10
 
 // ----Utilities-------------
 // Generic Callback
@@ -105,11 +108,19 @@ void queue_free(queue_t *p_queue);
 // ----Tile------------------
 typedef struct {
   int id;
+  // Visuals
   chtype ch;
   int color;
+  int attribute;
+  // For drawing
   bool occupied;
+  // Collision
   bool blocks_movement;
   bool movable;
+  // FOV
+  bool transparent;
+  bool visible;
+  bool seen;
 } tile_t;
 
 // (Experimental)
@@ -153,7 +164,8 @@ chtype view_get_input(view_data_t *p_view);
 void view_get_empty_coords(view_data_t *p_view, int *p_y, int *p_x);
 void view_draw_num_at(view_data_t *p_view, int y, int x, int num);
 chtype view_get_char_at(view_data_t *p_view, vec2_t pos);
-void view_draw_char_at(view_data_t *p_view, vec2_t pos, chtype ch, int color);
+void view_draw_char_at(view_data_t *p_view, vec2_t pos, chtype ch, int color,
+                       int attribute);
 void view_clear_char_at(view_data_t *p_view, vec2_t pos);
 void view_draw_message_at(view_data_t *p_view, int y, int x, char *p_msg);
 void view_draw_entity(view_data_t *p_view, entity_t *p_entity);
@@ -165,6 +177,7 @@ void view_draw(view_data_t *p_view);
 tile_map_t map_create(view_data_t *p_view);
 tile_t map_get_tile_at(tile_map_t map, vec2_t pos);
 void map_set_tile_at(tile_map_t map, tile_t tile, vec2_t pos);
+bool map_is_in_inside(tile_map_t map, vec2_t pos);
 void map_draw(view_data_t *p_view, tile_map_t map);
 void map_free(tile_map_t map);
 

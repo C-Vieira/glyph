@@ -12,8 +12,8 @@ internal void game_curses_setup() {
     start_color();
 
     // Black background
-    init_pair(WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);     // blue
-    init_pair(BLUE_BLACK, COLOR_BLUE, COLOR_BLACK);       // white
+    init_pair(WHITE_BLACK, COLOR_WHITE, COLOR_BLACK);     // white
+    init_pair(BLUE_BLACK, COLOR_BLUE, COLOR_BLACK);       // blue
     init_pair(RED_BLACK, COLOR_RED, COLOR_BLACK);         // red
     init_pair(YELLOW_BLACK, COLOR_YELLOW, COLOR_BLACK);   // yellow
     init_pair(GREEN_BLACK, COLOR_GREEN, COLOR_BLACK);     // green
@@ -22,6 +22,7 @@ internal void game_curses_setup() {
     init_pair(MAGENTA_BLACK, COLOR_MAGENTA, COLOR_BLACK); // magenta
     // White background
     init_pair(BLACK_WHITE, COLOR_BLACK, COLOR_WHITE); // black on white
+    init_pair(BLACK_BLUE, COLOR_BLACK, COLOR_BLUE);   // black on blue
 
   } else {
     mvprintw(20, 50, "Your system doesn't support color. Can't start game!");

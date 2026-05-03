@@ -1,4 +1,5 @@
 #include "../glyph.h"
+#include <curses.h>
 
 view_data_t *view_create(int height, int width, int yoffset, int xoffset) {
   int starty = ((LINES - height) + yoffset) / 2;
@@ -82,8 +83,9 @@ chtype view_get_char_at(view_data_t *p_view, vec2_t pos) {
   return mvwinch(p_view->p_view_window, pos.y, pos.x);
 }
 
-void view_draw_char_at(view_data_t *p_view, vec2_t pos, chtype ch, int color) {
-  mvwaddch(p_view->p_view_window, pos.y, pos.x, ch | color);
+void view_draw_char_at(view_data_t *p_view, vec2_t pos, chtype ch, int color,
+                       int attribute) {
+  mvwaddch(p_view->p_view_window, pos.y, pos.x, ch | color | attribute);
 }
 
 void view_clear_char_at(view_data_t *p_view, vec2_t pos) {
@@ -94,13 +96,16 @@ void view_draw_message_at(view_data_t *p_view, int y, int x, char *p_msg) {
   mvwprintw(p_view->p_view_window, y, x, "%s", p_msg);
 }
 
+// Entities don't have attribute support yet
 void view_draw_entity(view_data_t *p_view, entity_t *p_entity) {
-  view_draw_char_at(p_view, p_entity->pos, p_entity->ch, p_entity->color);
+  view_draw_char_at(p_view, p_entity->pos, p_entity->ch, p_entity->color,
+                    A_NORMAL);
 }
 
 void view_draw_tile_at(view_data_t *p_view, tile_map_t map, vec2_t pos) {
   view_draw_char_at(p_view, pos, map.p_tiles[pos.y][pos.x].ch,
-                    map.p_tiles[pos.y][pos.x].color);
+                    map.p_tiles[pos.y][pos.x].color,
+                    map.p_tiles[pos.y][pos.x].attribute);
 }
 
 void view_draw(view_data_t *p_view) {

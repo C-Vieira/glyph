@@ -1,27 +1,45 @@
 #include "../ccrawl.h"
+#include <curses.h>
 #include <stdlib.h>
 
 // Tile templates
-tile_t tile_empty = (tile_t){.id = 0,
-                             .ch = ' ',
-                             .color = COLOR_PAIR(BLACK_BLACK),
-                             .blocks_movement = false,
-                             .movable = false,
-                             .occupied = false};
+tile_t tile_empty = (tile_t){
+    .id = 0,
+    .ch = ':',
+    .color = COLOR_PAIR(WHITE_BLACK),
+    .attribute = A_NORMAL,
+    .blocks_movement = false,
+    .movable = false,
+    .occupied = true,
+    .transparent = true,
+    .visible = false,
+    .seen = false,
+};
 
-tile_t tile_wall = (tile_t){.id = 1,
-                            .ch = '#',
-                            .color = COLOR_PAIR(BLACK_WHITE),
-                            .blocks_movement = true,
-                            .movable = false,
-                            .occupied = true};
+tile_t tile_wall = (tile_t){
+    .id = 1,
+    .ch = '#',
+    .color = COLOR_PAIR(WHITE_BLACK),
+    .attribute = A_REVERSE,
+    .blocks_movement = true,
+    .movable = false,
+    .occupied = true,
+    .transparent = false,
+    .visible = false,
+    .seen = false,
+};
 
-tile_t tile_exit = (tile_t){.id = 2,
-                            .ch = '<',
-                            .color = COLOR_PAIR(YELLOW_BLACK),
-                            .blocks_movement = false,
-                            .movable = false,
-                            .occupied = true};
+tile_t tile_exit = (tile_t){
+    .id = 2,
+    .ch = '<',
+    .color = COLOR_PAIR(YELLOW_BLACK),
+    .attribute = A_NORMAL,
+    .blocks_movement = false,
+    .movable = false,
+    .transparent = true,
+    .visible = false,
+    .seen = false,
+};
 
 // ----Generator--------------
 // ----Cellular-Automata-Caves

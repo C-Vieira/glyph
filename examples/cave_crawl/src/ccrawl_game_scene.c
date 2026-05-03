@@ -27,11 +27,13 @@ void ccrawl_game_init() {
   // Player Init
   s_player = (entity_t){
       .pos = g_map.start_pos, .ch = '@', .color = COLOR_PAIR(GREEN_BLACK)};
-  // Draw it on the screen
-  view_draw_entity(sp_game_view, &s_player);
 
+  fov_update(g_map, &s_player);
   map_draw(sp_game_view, g_map);
   view_draw(sp_game_view);
+
+  // Draw player on the screen last
+  view_draw_entity(sp_game_view, &s_player);
 }
 
 void ccrawl_game_handle_input() {
@@ -74,9 +76,10 @@ void ccrawl_game_handle_input() {
       generator_generate_level(RAND_ROOMS, &g_map);
       // Clear visuals
       view_clear(sp_game_view);
-      map_draw(sp_game_view, g_map);
       // Reset player pos
       s_player.pos = g_map.start_pos;
+      fov_update(g_map, &s_player);
+      map_draw(sp_game_view, g_map);
     }
     break;
   }
@@ -102,20 +105,28 @@ void ccrawl_game_update() {
     return;
   }
 
+  fov_clear(g_map, &s_player);
   // Update player position
   s_player.pos = new_pos;
+  fov_update(g_map, &s_player);
 }
 
 void ccrawl_game_draw() {
   // Draw exit
   tile_t exit_tile = map_get_tile_at(g_map, g_map.exit_pos);
-  view_draw_char_at(sp_game_view, g_map.exit_pos, exit_tile.ch,
-                    exit_tile.color);
+  if (exit_tile.visible) {
+    view_draw_char_at(sp_game_view, g_map.exit_pos, exit_tile.ch,
+                      exit_tile.color, exit_tile.attribute);
+  } else if (exit_tile.seen) {
+    view_draw_char_at(sp_game_view, g_map.exit_pos, exit_tile.ch,
+                      COLOR_PAIR(WHITE_BLACK), A_DIM);
+  }
 
-  // Draw player (higher priority)
-  view_draw_entity(sp_game_view, &s_player);
-
+  map_draw(sp_game_view, g_map);
   view_draw(sp_game_view);
+
+  // Draw player (highest priority)
+  view_draw_entity(sp_game_view, &s_player);
 }
 
 void ccrawl_game_shutdown() {
