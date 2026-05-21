@@ -12,7 +12,9 @@ tile_t tile_empty = (tile_t){
     .movable = false,
     .occupied = true,
     .transparent = true,
-    .visible = false,
+    // DEBUG - made visible at start to disable FOV
+    // Default is false!
+    .visible = true,
     .seen = false,
 };
 
@@ -25,7 +27,9 @@ tile_t tile_wall = (tile_t){
     .movable = false,
     .occupied = true,
     .transparent = false,
-    .visible = false,
+    // DEBUG - made visible at start to disable FOV
+    // Default is false!
+    .visible = true,
     .seen = false,
 };
 
@@ -37,7 +41,9 @@ tile_t tile_exit = (tile_t){
     .blocks_movement = false,
     .movable = false,
     .transparent = true,
-    .visible = false,
+    // DEBUG - made visible at start to disable FOV
+    // Default is false!
+    .visible = true,
     .seen = false,
 };
 

@@ -1,0 +1,68 @@
+// OLD API
+/*
+// ----Data-Structures-------
+// ----Dynamic-Array---------
+typedef struct {
+  data_type_t type;
+  size_t capacity;
+  size_t occupied;
+  void *p_data;
+} dyn_array_t;
+
+dyn_array_t array_create(size_t capacity, data_type_t type);
+void array_push(dyn_array_t *p_array, size_t index, void *p_value);
+void *array_get_at(dyn_array_t *p_array, size_t element_size, size_t index);
+void array_free(dyn_array_t *p_array);
+*/
+
+// OLD IMPLEMENTATION
+/*
+#include "../glyph.h"
+
+dyn_array_t array_create(size_t capacity, data_type_t type) {
+  size_t type_size = get_element_size(type);
+  dyn_array_t array = {.type = type,
+                       .capacity = capacity,
+                       .occupied = 0,
+                       .p_data = mem_allocate(capacity, type_size)};
+
+  return array;
+}
+
+void array_push(dyn_array_t *p_array, size_t index, void *value) {
+  // Check for full capacity and dynamically grow the array
+  if (p_array->capacity == p_array->occupied) {
+    p_array->capacity *= 2;
+    p_array->p_data = realloc(
+        p_array->p_data, p_array->capacity * get_element_size(p_array->type));
+    if (p_array->p_data == NULL) {
+      fprintf(stderr, "ERROR: memory reallocation failed\n");
+      exit(1);
+    }
+  }
+
+  // Cast void* value to the appropriate data type
+  if (p_array->type == T_INT) {
+    int *int_ptr = (int *)value;
+    ((int *)p_array->p_data)[index] = *int_ptr;
+  } else if (p_array->type == T_ENTITY) {
+    entity_t *ent_ptr = (entity_t *)value;
+    ((entity_t *)p_array->p_data)[index] = *ent_ptr;
+  } else if (p_array->type == T_VEC) {
+    vec2_t *vec_ptr = (vec2_t *)value;
+    ((vec2_t *)p_array->p_data)[index] = *vec_ptr;
+  } else if (p_array->type == T_ROOM) {
+    room_t *room_ptr = (room_t *)value;
+    ((room_t *)p_array->p_data)[index] = *room_ptr;
+  }
+  p_array->occupied++;
+}
+
+// Probably more convoluted than just indexing into the array and
+// casting manually ... (keeping it here just for future reference)
+void *array_get_at(dyn_array_t *p_array, size_t element_size, size_t index) {
+  return (char *)p_array->p_data + (element_size * index);
+}
+
+void array_free(dyn_array_t *p_array) { free(p_array->p_data); }
+*/

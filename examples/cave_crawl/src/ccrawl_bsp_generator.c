@@ -1,8 +1,7 @@
 #include "../ccrawl.h"
-#include <curses.h>
 
 // Temp room array
-dyn_array_t g_rooms;
+room_t *gp_rooms;
 
 internal room_t room_create(int y, int x, int height, int width) {
   int center_middle_y = y + (int)(height / 2);
@@ -47,7 +46,7 @@ internal void add_room_to_map(bsp_node_t *p_node, tile_map_t map) {
       room_height, room_width);
 
   // Add room to rooms array
-  array_push(&g_rooms, g_rooms.occupied, (void *)&new_room);
+  array_push(gp_rooms, new_room);
 
   for (int y = new_room.upper_left_corner_pos.y;
        y < new_room.upper_left_corner_pos.y + new_room.height; y++) {
@@ -213,10 +212,10 @@ internal void bsp_start(tile_map_t map) {
   // getch();
 
   // Connect rooms
-  for (size_t i = 0; i < g_rooms.occupied; i++) {
+  for (size_t i = 0; i < array_occupied(gp_rooms); i++) {
     if (i > 0) {
-      room_t curr_room = ((room_t *)g_rooms.p_data)[i];
-      room_t prev_room = ((room_t *)g_rooms.p_data)[i - 1];
+      room_t curr_room = gp_rooms[i];
+      room_t prev_room = gp_rooms[i - 1];
       connect_room_centers(map, prev_room.center_pos, curr_room.center_pos);
     }
   }
@@ -228,14 +227,18 @@ internal void bsp_free() {
 }
 
 void generator_generate_level(generator_type_e type, tile_map_t *p_map) {
-  g_rooms = array_create(4, T_ROOM);
+  // gp_rooms = array_create(4, T_ROOM);
+  gp_rooms = array_create(room_t, 4);
   bsp_start(*p_map);
 
-  room_t first_room = ((room_t *)g_rooms.p_data)[0];
-  room_t last_room = ((room_t *)g_rooms.p_data)[g_rooms.occupied - 1];
+  room_t first_room = gp_rooms[0];
+  room_t last_room = gp_rooms[array_occupied(gp_rooms) - 1];
+
   // Place exit
   map_set_tile_at(*p_map, tile_exit, last_room.center_pos);
 
   p_map->start_pos = first_room.center_pos;
   p_map->exit_pos = last_room.center_pos;
+
+  array_free(gp_rooms);
 }

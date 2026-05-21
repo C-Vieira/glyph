@@ -1,5 +1,4 @@
 #include "../glyph.h"
-#include <curses.h>
 
 tile_map_t map_create(view_data_t *p_view) {
   tile_map_t map = {// Set map height

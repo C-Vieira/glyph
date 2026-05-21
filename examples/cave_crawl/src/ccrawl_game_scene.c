@@ -28,7 +28,7 @@ void ccrawl_game_init() {
   s_player = (entity_t){
       .pos = g_map.start_pos, .ch = '@', .color = COLOR_PAIR(GREEN_BLACK)};
 
-  fov_update(g_map, &s_player);
+  // fov_update(g_map, &s_player);
   map_draw(sp_game_view, g_map);
   view_draw(sp_game_view);
 
@@ -78,7 +78,7 @@ void ccrawl_game_handle_input() {
       view_clear(sp_game_view);
       // Reset player pos
       s_player.pos = g_map.start_pos;
-      fov_update(g_map, &s_player);
+      // fov_update(g_map, &s_player);
       map_draw(sp_game_view, g_map);
     }
     break;
@@ -105,10 +105,10 @@ void ccrawl_game_update() {
     return;
   }
 
-  fov_clear(g_map, &s_player);
+  // fov_clear(g_map, &s_player);
   // Update player position
   s_player.pos = new_pos;
-  fov_update(g_map, &s_player);
+  // fov_update(g_map, &s_player);
 }
 
 void ccrawl_game_draw() {

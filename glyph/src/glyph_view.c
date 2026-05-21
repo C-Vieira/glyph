@@ -1,5 +1,4 @@
 #include "../glyph.h"
-#include <curses.h>
 
 view_data_t *view_create(int height, int width, int yoffset, int xoffset) {
   int starty = ((LINES - height) + yoffset) / 2;

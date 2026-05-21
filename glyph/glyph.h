@@ -2,6 +2,7 @@
 #define GLYPH_H
 
 // ----Includes--------------
+#include <assert.h>
 #include <curses.h>
 #include <menu.h>
 #include <stdbool.h>
@@ -76,19 +77,29 @@ typedef struct node_t {
 
 void entity_move_to(entity_t *p_entity, vec2_t new_pos);
 
-// ----Data-Structures-------
 // ----Dynamic-Array---------
+// Helpful macros
+#define array_header(arr) ((dyn_array_header_t *)(arr) - 1)
+#define array_occupied(arr) ((array_header(arr)->occupied))
+#define array_capacity(arr) ((array_header(arr)->capacity))
+
+#define array_create(T, cap) array_init(sizeof(T), cap)
+
+// NOTE: compiler complains in cases where value is a constant
+#define array_push(arr, value)                                                 \
+  ((arr) = array_grow(arr, sizeof(value)),                                     \
+   (arr)[array_header(arr)->occupied] = (value),                               \
+   &(arr)[array_header(arr)->occupied++])
+
 typedef struct {
-  data_type_t type;
   size_t capacity;
   size_t occupied;
   void *p_data;
-} dyn_array_t;
+} dyn_array_header_t;
 
-dyn_array_t array_create(size_t capacity, data_type_t type);
-void array_push(dyn_array_t *p_array, size_t index, void *p_value);
-void *array_get_at(dyn_array_t *p_array, size_t element_size, size_t index);
-void array_free(dyn_array_t *p_array);
+void *array_init(size_t item_size, size_t capacity);
+void *array_grow(void *p_array, size_t item_size);
+void array_free(void *p_array);
 
 // ----Queue-----------------
 typedef struct {

@@ -1,48 +1,40 @@
 #include "../glyph.h"
 
-dyn_array_t array_create(size_t capacity, data_type_t type) {
-  size_t type_size = get_element_size(type);
-  dyn_array_t array = {.type = type,
-                       .capacity = capacity,
-                       .occupied = 0,
-                       .p_data = mem_allocate(capacity, type_size)};
+void *array_init(size_t item_size, size_t capacity) {
+  void *ptr = 0;
+  size_t buffer_size = item_size * capacity + sizeof(dyn_array_header_t);
+  // dyn_array_header_t *header = calloc(capacity, buffer_size);
+  dyn_array_header_t *header = mem_allocate(capacity, buffer_size);
 
-  return array;
+  if (header) {
+    header->capacity = capacity;
+    header->occupied = 0;
+
+    ptr = header + 1;
+
+    header->p_data = ptr;
+  }
+
+  return ptr;
 }
 
-void array_push(dyn_array_t *p_array, size_t index, void *value) {
+void *array_grow(void *p_array, size_t item_size) {
+  dyn_array_header_t *p_header = array_header(p_array);
+
   // Check for full capacity and dynamically grow the array
-  if (p_array->capacity == p_array->occupied) {
-    p_array->capacity *= 2;
-    p_array->p_data = realloc(
-        p_array->p_data, p_array->capacity * get_element_size(p_array->type));
-    if (p_array->p_data == NULL) {
+  if (p_header->capacity == p_header->occupied) {
+    p_header->capacity *= 2;
+
+    p_header = realloc(p_header, p_header->capacity * item_size +
+                                     sizeof(dyn_array_header_t));
+    if (p_header == NULL) {
       fprintf(stderr, "ERROR: memory reallocation failed\n");
       exit(1);
     }
   }
 
-  // Cast void* value to the appropriate data type
-  if (p_array->type == T_INT) {
-    int *int_ptr = (int *)value;
-    ((int *)p_array->p_data)[index] = *int_ptr;
-  } else if (p_array->type == T_ENTITY) {
-    entity_t *ent_ptr = (entity_t *)value;
-    ((entity_t *)p_array->p_data)[index] = *ent_ptr;
-  } else if (p_array->type == T_VEC) {
-    vec2_t *vec_ptr = (vec2_t *)value;
-    ((vec2_t *)p_array->p_data)[index] = *vec_ptr;
-  } else if (p_array->type == T_ROOM) {
-    room_t *room_ptr = (room_t *)value;
-    ((room_t *)p_array->p_data)[index] = *room_ptr;
-  }
-  p_array->occupied++;
+  // Return pointer to data
+  return p_header + 1;
 }
 
-// Probably more convoluted than just indexing into the array and
-// casting manually ... (keeping it here just for future reference)
-void *array_get_at(dyn_array_t *p_array, size_t element_size, size_t index) {
-  return (char *)p_array->p_data + (element_size * index);
-}
-
-void array_free(dyn_array_t *p_array) { free(p_array->p_data); }
+void array_free(void *p_array) { free(array_header(p_array)); }
