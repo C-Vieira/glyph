@@ -3,7 +3,6 @@
 void *array_init(size_t item_size, size_t capacity) {
   void *ptr = 0;
   size_t buffer_size = item_size * capacity + sizeof(dyn_array_header_t);
-  // dyn_array_header_t *header = calloc(capacity, buffer_size);
   dyn_array_header_t *header = mem_allocate(capacity, buffer_size);
 
   if (header) {

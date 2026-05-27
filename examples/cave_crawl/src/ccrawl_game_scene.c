@@ -1,8 +1,9 @@
 #include "../ccrawl.h"
-#include <curses.h>
-#include <stdbool.h>
 
 scene_data_t *gp_ccrawl_game_scene;
+
+// Scene memory arena
+// static arena_t *gp_arena;
 
 // Player reference
 static entity_t s_player;
@@ -14,6 +15,9 @@ static view_data_t *sp_game_view;
 tile_map_t g_map;
 
 void ccrawl_game_init() {
+  // Scene memory arena init
+  // gp_arena = arena_create(1024);
+
   // Game view init
   sp_game_view = view_create(35, 90, 0, 0);
   view_add_border(sp_game_view);
@@ -130,6 +134,11 @@ void ccrawl_game_draw() {
 }
 
 void ccrawl_game_shutdown() {
+  // Free map
+  map_free(g_map);
+
+  // arena_free(gp_arena);
+
   // Free view windows
   delwin(sp_game_view->p_view_window);
 

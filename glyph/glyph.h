@@ -56,6 +56,24 @@ int randi_range(int from, int to);
 bool rand_bool();
 
 // ----Memory----------------
+// ----Arena-----------------
+#define ALIGN_UP_POW2(position, alignment)                                     \
+  (((int64_t)(position) + ((int64_t)(alignment) - 1)) &                        \
+   (~((int64_t)(alignment) - 1)))
+#define ARENA_ALIGNMENT (sizeof(void *))
+
+#define arena_alloc(arena, count, T) (T *)arena_push(arena, sizeof(T) * count)
+
+typedef struct {
+  char *p_buffer;  // data
+  size_t offset;   // end
+  size_t capacity; // max memory
+} arena_t;
+
+arena_t *arena_create(size_t capacity);
+void *arena_push(arena_t *p_arena, size_t size);
+void arena_free(arena_t *p_arena);
+
 // Type Enum
 typedef enum { T_INT, T_ENTITY, T_VEC, T_ROOM } data_type_t;
 

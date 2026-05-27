@@ -1,5 +1,8 @@
 #include "../ccrawl.h"
 
+// Temp arena
+arena_t *gp_arena;
+
 // Temp room array
 room_t *gp_rooms;
 
@@ -90,7 +93,7 @@ internal bsp_node_t *split_horizontal(bsp_node_t *p_node, int split_pos,
                                       int depth);
 
 bsp_node_t *bsp_create(vec2_t pos, int height, int width) {
-  bsp_node_t *node = mem_allocate(1, sizeof(bsp_node_t));
+  bsp_node_t *node = arena_alloc(gp_arena, 1, bsp_node_t);
 
   node->node_pos = pos;
   node->node_height = height;
@@ -222,12 +225,13 @@ internal void bsp_start(tile_map_t map) {
 }
 
 internal void bsp_free() {
-  // TODO: free bsp tree
-  // or implement with memory arena
+  arena_free(gp_arena);
+  array_free(gp_rooms);
 }
 
 void generator_generate_level(generator_type_e type, tile_map_t *p_map) {
-  // gp_rooms = array_create(4, T_ROOM);
+  gp_arena = arena_create(2 * sizeof(bsp_node_t));
+
   gp_rooms = array_create(room_t, 4);
   bsp_start(*p_map);
 
@@ -240,5 +244,5 @@ void generator_generate_level(generator_type_e type, tile_map_t *p_map) {
   p_map->start_pos = first_room.center_pos;
   p_map->exit_pos = last_room.center_pos;
 
-  array_free(gp_rooms);
+  bsp_free();
 }
