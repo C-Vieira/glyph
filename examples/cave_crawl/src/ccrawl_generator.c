@@ -2,10 +2,19 @@
 #include <curses.h>
 #include <stdlib.h>
 
+// Entity templates
+entity_t entity_kobold = (entity_t){
+    .id = 0,
+    .ch = 'k',
+    .color = COLOR_PAIR(RED_BLACK),
+    .health = 10,
+    .damage = 2,
+};
+
 // Tile templates
 tile_t tile_empty = (tile_t){
     .id = 0,
-    .ch = ':',
+    .ch = '.',
     .color = COLOR_PAIR(WHITE_BLACK),
     .attribute = A_NORMAL,
     .blocks_movement = false,

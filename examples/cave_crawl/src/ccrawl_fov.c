@@ -20,7 +20,7 @@ void fov_update(tile_map_t map, entity_t *player) {
       distance = get_distance(player->pos, target);
 
       if (distance < RADIUS) {
-        if (map_is_in_inside(map, target) &&
+        if (map_is_inside(map, target) &&
             los_is_visible(map, player->pos, target)) {
           tile_t curr_tile = map_get_tile_at(map, target);
           curr_tile.visible = true;
@@ -39,7 +39,7 @@ void fov_clear(tile_map_t map, entity_t *player) {
   for (y = player->pos.y - RADIUS; y < player->pos.y + RADIUS; y++) {
     for (x = player->pos.x - RADIUS; x < player->pos.x + RADIUS; x++) {
       vec2_t curr_pos = (vec2_t){y, x};
-      if (map_is_in_inside(map, curr_pos)) {
+      if (map_is_inside(map, curr_pos)) {
         tile_t curr_tile = map_get_tile_at(map, curr_pos);
         curr_tile.visible = false;
         map_set_tile_at(map, curr_tile, curr_pos);

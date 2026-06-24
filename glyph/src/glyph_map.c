@@ -10,6 +10,9 @@ tile_map_t map_create(view_data_t *p_view) {
   // Allocate for columns (y)
   map.p_tiles = mem_allocate(map.MAP_HEIGHT, sizeof(tile_t *));
 
+  // Init entity array list
+  map.p_entities = array_create(entity_t, 8);
+
   // Iterate columns
   for (int y = 0; y < map.MAP_HEIGHT; y++) {
     // Allocate for rows (x)
@@ -35,12 +38,23 @@ void map_set_tile_at(tile_map_t map, tile_t tile, vec2_t pos) {
   map.p_tiles[pos.y][pos.x] = tile;
 }
 
-bool map_is_in_inside(tile_map_t map, vec2_t pos) {
+bool map_is_inside(tile_map_t map, vec2_t pos) {
   if ((pos.y > 0 && pos.y < map.MAP_HEIGHT - 1) &&
       (pos.x > 0 && pos.x < map.MAP_WIDTH - 1)) {
     return true;
   }
   return false;
+}
+
+internal void draw_entities(view_data_t *p_view, tile_map_t map) {
+  tile_t entity_tile;
+  for (int i = 0; i < array_capacity(map.p_entities); i++) {
+    entity_tile = map_get_tile_at(map, map.p_entities[i].pos);
+
+    if (entity_tile.visible) {
+      view_draw_entity(p_view, &map.p_entities[i]);
+    }
+  }
 }
 
 // Could maybe be a view function instead
@@ -67,6 +81,8 @@ void map_draw(view_data_t *p_view, tile_map_t map) {
       }
     }
   }
+
+  draw_entities(p_view, map);
 }
 
 void map_free(tile_map_t map) {
@@ -77,4 +93,7 @@ void map_free(tile_map_t map) {
 
   // Free map
   free(map.p_tiles);
+
+  // Free entity array
+  array_free(map.p_entities);
 }

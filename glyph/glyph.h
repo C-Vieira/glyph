@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 // ----Defines---------------
@@ -82,10 +83,15 @@ void *mem_allocate(size_t num_elements, size_t element_size);
 
 // ----Entity----------------
 typedef struct {
+  int id;
   vec2_t pos;
   vec2_t dir;
+  // Visuals
   chtype ch;
   int color;
+  // Stats
+  int health;
+  int damage;
 } entity_t;
 
 typedef struct node_t {
@@ -93,6 +99,7 @@ typedef struct node_t {
   struct node_t *p_next;
 } node_t; // Entity Node
 
+// Unused
 void entity_move_to(entity_t *p_entity, vec2_t new_pos);
 
 // ----Dynamic-Array---------
@@ -102,6 +109,8 @@ void entity_move_to(entity_t *p_entity, vec2_t new_pos);
 #define array_capacity(arr) ((array_header(arr)->capacity))
 
 #define array_create(T, cap) array_init(sizeof(T), cap)
+#define array_clear(arr, type)                                                 \
+  memset(arr, 0, array_capacity(arr) * sizeof(type))
 
 // NOTE: compiler complains in cases where value is a constant
 #define array_push(arr, value)                                                 \
@@ -159,6 +168,9 @@ typedef struct {
   int MAP_WIDTH;
   tile_t **p_tiles;
 
+  // Entity array list
+  entity_t *p_entities;
+
   vec2_t start_pos;
   vec2_t exit_pos;
 } tile_map_t;
@@ -206,7 +218,7 @@ void view_draw(view_data_t *p_view);
 tile_map_t map_create(view_data_t *p_view);
 tile_t map_get_tile_at(tile_map_t map, vec2_t pos);
 void map_set_tile_at(tile_map_t map, tile_t tile, vec2_t pos);
-bool map_is_in_inside(tile_map_t map, vec2_t pos);
+bool map_is_inside(tile_map_t map, vec2_t pos);
 void map_draw(view_data_t *p_view, tile_map_t map);
 void map_free(tile_map_t map);
 

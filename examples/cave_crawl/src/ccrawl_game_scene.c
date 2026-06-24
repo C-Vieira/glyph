@@ -5,14 +5,51 @@ scene_data_t *gp_ccrawl_game_scene;
 // Scene memory arena
 // static arena_t *gp_arena;
 
-// Player reference
-static entity_t s_player;
-
 // Views
 static view_data_t *sp_game_view;
 
 // Tilemap
 tile_map_t g_map;
+
+// Player reference
+static entity_t s_player;
+
+// TODO: find a better place for this
+// Inital test for entity collisions
+internal bool can_move(vec2_t target_pos) {
+  // Iterate through the entity list
+  for (int i = 0; i < array_capacity(g_map.p_entities); i++) {
+    // Player is external to entity list
+    // Additional check against player pos
+    if (vector_equals(target_pos, g_map.p_entities[i].pos) ||
+        vector_equals(target_pos, s_player.pos)) {
+      // Found an entity at the target pos, can't move
+      return false;
+    }
+  }
+  return true;
+}
+
+internal void move_entities() {
+  for (int i = 0; i < array_capacity(g_map.p_entities); i++) {
+    vec2_t rand_dir = (vec2_t){
+        .x = randi_range(-1, 1),
+        .y = randi_range(-1, 1),
+    };
+
+    vec2_t move_pos = vector_add(g_map.p_entities[i].pos, rand_dir);
+
+    if (map_is_inside(g_map, move_pos)) {
+      if (!map_get_tile_at(g_map, move_pos).blocks_movement &&
+          can_move(move_pos)) {
+        // Clear trail
+        view_clear_char_at(sp_game_view, g_map.p_entities[i].pos);
+
+        g_map.p_entities[i].pos = move_pos;
+      }
+    }
+  }
+}
 
 void ccrawl_game_init() {
   // Scene memory arena init
@@ -49,6 +86,16 @@ void ccrawl_game_handle_input() {
   if (input == 'r') {
     // Shouldn't draw on handle input
     view_clear(sp_game_view);
+
+    // Clear array
+    array_clear(g_map.p_entities, entity_t);
+
+    /*
+    for (int i = 0; i < array_occupied(g_map.p_entities); i++)
+      g_map.p_entities[i] = (entity_t){0};
+    array_header(g_map.p_entities)->occupied = 0;
+    */
+
     generator_generate_level(1, &g_map);
     map_draw(sp_game_view, g_map);
   }
@@ -76,6 +123,9 @@ void ccrawl_game_handle_input() {
     // update and draw on handle input...
     // Player is over the exit
     if (vector_equals(s_player.pos, g_map.exit_pos)) {
+      // Clear array
+      array_clear(g_map.p_entities, entity_t);
+
       // Regenerate level
       generator_generate_level(RAND_ROOMS, &g_map);
       // Clear visuals
@@ -101,18 +151,21 @@ void ccrawl_game_update() {
   view_clear_char_at(sp_game_view, s_player.pos);
 
   // Handle collisions
-  if (view_at_border(sp_game_view, new_pos)) {
-    return;
-  }
-  // Tile collisions
-  if (map_get_tile_at(g_map, new_pos).blocks_movement) {
-    return;
+  if (!view_at_border(sp_game_view, new_pos)) {
+    // Tile collisions
+    if (!map_get_tile_at(g_map, new_pos).blocks_movement) {
+      // Entity collisions
+      if (can_move(new_pos)) {
+        // fov_clear(g_map, &s_player);
+        // Update player position
+        s_player.pos = new_pos;
+        // fov_update(g_map, &s_player);
+      }
+    }
   }
 
-  // fov_clear(g_map, &s_player);
-  // Update player position
-  s_player.pos = new_pos;
-  // fov_update(g_map, &s_player);
+  // Entities move after player
+  move_entities();
 }
 
 void ccrawl_game_draw() {

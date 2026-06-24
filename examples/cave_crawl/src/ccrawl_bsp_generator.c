@@ -85,6 +85,32 @@ internal void connect_room_centers(tile_map_t map, vec2_t center_one,
   }
 }
 
+internal void place_enemies(tile_map_t map) {
+  int num_enemies;
+  room_t curr_room;
+
+  // Iterate through rooms array skipping the first room (player spawn)
+  for (int i = 1; i < array_occupied(gp_rooms); i++) {
+    curr_room = gp_rooms[i];
+    num_enemies = randi_range(0, 4);
+    for (int j = 0; j < num_enemies; j++) {
+      // Get random position inside the current room
+      vec2_t rand_pos = (vec2_t){
+          .x = randi_range(curr_room.upper_left_corner_pos.x + 1,
+                           curr_room.upper_left_corner_pos.x + curr_room.width -
+                               1),
+          .y = randi_range(curr_room.upper_left_corner_pos.y + 1,
+                           curr_room.upper_left_corner_pos.y +
+                               curr_room.height - 1),
+      };
+      if (!map_get_tile_at(map, rand_pos).blocks_movement) {
+        map.p_entities[i + j - 1] = entity_kobold;
+        map.p_entities[i + j - 1].pos = rand_pos;
+      }
+    }
+  }
+}
+
 // --------------------------------------------
 // ----Forward-Declarations--------------------
 internal bsp_node_t *split_vertical(bsp_node_t *p_node, int split_pos,
@@ -222,6 +248,8 @@ internal void bsp_start(tile_map_t map) {
       connect_room_centers(map, prev_room.center_pos, curr_room.center_pos);
     }
   }
+
+  place_enemies(map);
 }
 
 internal void bsp_free() {

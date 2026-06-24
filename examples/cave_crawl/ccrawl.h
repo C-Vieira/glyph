@@ -4,6 +4,9 @@
 #include "../../glyph/glyph.h"
 
 // Tile Templates
+extern entity_t entity_kobold;
+
+// Tile Templates
 extern tile_t tile_empty;
 extern tile_t tile_wall;
 extern tile_t tile_exit;
